@@ -1,6 +1,6 @@
 # **Emory Exchange**
 
-**Emory Exchange** is a platform designed to foster connections among students across Emory University's campuses. Its goal is to provide a centralized space for tutoring, marketplace exchanges, and service sharing to ehnmace collaboration and resource accessibility, making campus life more efficient and community-focused.
+**Emory Exchange** is a platform designed to foster connections among students across Emory University's campuses. Its goal is to provide a centralized space for tutoring, marketplace exchanges, and service sharing to enhance collaboration and resource accessibility, making campus life more efficient and community-focused.
 
 ---
 
@@ -19,12 +19,12 @@
 1. **Tutoring Services**:
    - Students can sign up as tutors or seek tutoring help in specific subjects outside of what is provided by Emory University.
    - Reviews and ratings help identify top tutors.
-   - Verified tutors are given the oppurtunity to earn money.
+   - Verified tutors are given the opportunity to earn money.
 
 2. **Marketplace Exchange**:
    - Buy, sell, or trade items within the Emory community.
    - Categories include textbooks, furniture, electronics, and more.
-   - In app messaging and payment.
+   - In-app messaging and payment.
 
 3. **Service Sharing**:
    - Post and find services such as ridesharing, tech assistance, etc.
@@ -76,7 +76,7 @@ Emory Exchange strives to:
 
 - **Mobile App**: Develop a native mobile app for easier access on the go.
 - **Expanded Services**:  A
-- **Advanced Search**: Implement filters for location, price range, and availability.
+- **Advanced Search**: Implement location, price range, and availability filters.
 
 ---
 
