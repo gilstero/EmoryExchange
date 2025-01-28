@@ -75,7 +75,6 @@ Emory Exchange strives to:
 ## **Future Development Plans**
 
 - **Mobile App**: Develop a native mobile app for easier access on the go.
-- **Expanded Services**:  A
 - **Advanced Search**: Implement location, price range, and availability filters.
 
 ---
