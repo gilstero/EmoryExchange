@@ -63,12 +63,10 @@ Emory Exchange strives to:
 
 ## **Technologies Used**
 
-- **Frontend**: ??
-- **Backend**: ??
-- **Database**: ??
-- **Authentication**: ??
-- **Styling**: ??
-- **Hosting**: ??
+- **Frontend**: React.js
+- **Backend**: Python/Django
+- **Database**: PostgreSQL
+- **Other**: Stripe Payments
 
 ---
 
