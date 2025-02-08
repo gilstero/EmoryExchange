@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Navbar from './components/Navbar'
 import Main from './components/Main'
-import Footer from './components/Footer'
+import Description from './components/Description'
 
 function App() {
 
@@ -9,7 +9,7 @@ function App() {
     <>
       <Navbar />
       <Main />
-      <Footer />
+      <Description />
     </>
   )
 }
