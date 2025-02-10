@@ -1,9 +1,9 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-class Member(models.Model):
-  firstname = models.CharField(max_length=255)
-  lastname = models.CharField(max_length=255)
+# class Member(models.Model):
+#   firstname = models.CharField(max_length=255)
+#   lastname = models.CharField(max_length=255)
 
 # User Table
 class User(models.Model):
@@ -12,8 +12,7 @@ class User(models.Model):
     real_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     phone_num = models.CharField(max_length=20)
-
-
+    password = models.CharField(max_length=255)
 
 # Transaction Table
 # user1_rating and user2_rating are bounded by 1 through 5 stars with MinValueValidator and MaxValueValidator
