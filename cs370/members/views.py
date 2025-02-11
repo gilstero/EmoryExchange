@@ -53,4 +53,5 @@ class TransactionView(APIView):
     user2_rating = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
     user2_notes = models.TextField(null=True, blank=True)
 
-    
+def control_page(request):
+    return render(request, "home.html")

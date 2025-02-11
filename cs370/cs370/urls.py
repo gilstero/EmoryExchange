@@ -21,6 +21,7 @@ from django.urls import include, path
 from members.views import *
 
 urlpatterns = [
+    path('', control_page, name="control page"),
     path('admin/', admin.site.urls),
     path('user/', UserView.as_view(), name="user"),
     path('transaction/', TransactionView.as_view(), name="transaction")
