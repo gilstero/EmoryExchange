@@ -33,7 +33,7 @@ class TransactionView(APIView):
                    "date": output.date,
                    "user1_rating": output.user1_rating,
                    "user1_notes": output.user1_notes,
-                   "user2_rating": output.user2_notes,
+                   "user2_rating": output.user2_rating,
                    "user2_notes": output.user2_notes}
                   for output in Transaction.objects.all()]
         return Response(output)
