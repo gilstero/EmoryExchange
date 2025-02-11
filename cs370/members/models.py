@@ -25,3 +25,32 @@ class Transaction(models.Model):
     user1_notes = models.TextField(null=True, blank=True)
     user2_rating = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
     user2_notes = models.TextField(null=True, blank=True)
+
+# Rideshare database
+class Ride(models.Model):
+    # different pre-defined choices in the ride model
+    STATUS_CHOICES = [
+        ('requested', 'Requested'),
+        ('accepted', 'Accepted'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    # same schema as transaction treating User as a foreign key
+    user_id_1 = models.ForeignKey(User, related_name="rides_as_driver", on_delete=models.SET_NULL, null=True, blank=True)
+    user_id_2 = models.ForeignKey(User, related_name="rides_as_passenger", on_delete=models.CASCADE)
+    
+    # pickup and dropoff are both chars, record the time of pickup as well
+    pickup_location = models.CharField(max_length=255)
+    dropoff_location = models.CharField(max_length=255)
+    pickup_time = models.DateTimeField()
+    
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='requested')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Ride from {self.pickup_location} to {self.dropoff_location} - {self.status}"
