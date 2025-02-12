@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Description() {
   return (
-    <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-6 text-green-800 text-center">
+    <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-6 text-green-800 text-center mb-4">
       <div className="flex flex-col justify-center p-4 w-[300px]">
         <h3 className="font-bold text-2xl">Safe and Secure</h3>
         <p>
