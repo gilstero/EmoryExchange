@@ -32,13 +32,13 @@ export default function Login() {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
+            className="w-full bg-[#0c2b9c] text-white py-2 rounded-md hover:bg-[#0c2b9ce1] transition duration-300 cursor-pointer"
           >
             Log In
           </button>
         </form>
         <div className="mt-4 text-center">
-          <p className="text-black-500">Don't have an account? <Link to="/signup" className="text-blue-600">Sign Up</Link></p>
+          <p className="text-black-500">Don't have an account? <Link to="/signup" className="text-[#0c2b9c]">Sign Up</Link></p>
         </div>
       </div>
     </div>

@@ -54,13 +54,13 @@ export default function Signup() {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
+            className="w-full bg-[#0c2b9c] text-white py-2 rounded-md hover:bg-[#0c2b9ce1] transition duration-300 cursor-pointer"
           >
             Sign Up
           </button>
         </form>
         <div className="mt-4 text-center">
-          <p className="text-black-500">Already have an account? <Link to="/login" className="text-blue-600">Log In</Link> </p>
+          <p className="text-black-500">Already have an account? <Link to="/login" className="text-[#0c2b9c]">Log In</Link> </p>
         </div>
       </div>
     </div>
