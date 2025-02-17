@@ -46,6 +46,13 @@ class UserView(APIView):
             return Response({"error": "User not found from token"}, status=404)
 
         serializer = UserSerializer(user, data={**request.data, **request.FILES}, partial=True)
+
+        print("files:", request.FILES)
+
+        print("data:", request.data)
+
+        print("profile name:", type(request.data['profile_name']))
+
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
