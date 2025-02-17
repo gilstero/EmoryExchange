@@ -15,7 +15,8 @@ class UserView(APIView):
                    "real_name": output.real_name,
                    "email": output.email,
                    "phone_num": output.phone_num,
-                   "password": output.password} 
+                   "password": output.password, 
+                   "propic": output.propic}
                   for output in User.objects.all()]
         return Response(output)
     
@@ -44,14 +45,62 @@ class TransactionView(APIView):
             serializer.save()
             return Response(serializer.data)
 
-        user_id_1 = models.ForeignKey(User, related_name="transactions_as_sender", on_delete=models.CASCADE)
-    user_id_2 = models.ForeignKey(User, related_name="transactions_as_receiver", on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    date = models.DateTimeField(auto_now_add=True)
-    user1_rating = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    user1_notes = models.TextField(null=True, blank=True)
-    user2_rating = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    user2_notes = models.TextField(null=True, blank=True)
+class MessageView(APIView):
+    def get(self, request):
+        output = [{"user_id_1": message.user_id_1,
+                   "user_id_2": message.user_id_2,
+                   "date": message.date,
+                   "message": message.message}
+                  for message in Message.objects.all()]
+        return Response(output)
+    
+    def post(self, request):
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+        
+class RideView(APIView):
+    def get(self, request):
+        output = [{"user_id_1": ride.user_id_1,
+                   "user_id_2": ride.user_id_2,
+                   "date": ride.date,
+                   "pickup_location": ride.pickup_location,
+                   "dropoff_location": ride.dropoff_location,
+                   "amount": ride.amount,
+                   "status": ride.status,
+                   "created_at": ride.created_at,
+                   "updated_at": ride.updated_at}
+                  for ride in Ride.objects.all()]
+        return Response(output)
+    
+    def post(self, request):
+        serializer = RideSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
+class ListingView(APIView):
+    def get(self, request):
+        output = [{"LID": listing.LID,
+                   "user_id": listing.user_id,
+                   "amount": listing.amount,
+                   "ldate": listing.ldate,
+                   "img": listing.img,
+                   "recurring": listing.recurring,
+                   "tag": listing.tag,
+                   "status": listing.status,
+                   "title": listing.title,
+                   "description": listing.description}
+                  for listing in Listing.objects.all()]
+        return Response(output)
+    
+    def post(self, request):
+        serializer = ListingSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
 
 def control_page(request):
     return render(request, "home.html")

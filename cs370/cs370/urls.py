@@ -24,5 +24,8 @@ urlpatterns = [
     path('', control_page, name="control page"),
     path('admin/', admin.site.urls),
     path('user/', UserView.as_view(), name="user"),
-    path('transaction/', TransactionView.as_view(), name="transaction")
+    path('transaction/', TransactionView.as_view(), name="transaction"),
+    path('ride/', RideView.as_view(), name="ride"),
+    path('message/', MessageView.as_view(), name="message"),
+    path('listing/', ListingView.as_view(), name="listing")
 ]
