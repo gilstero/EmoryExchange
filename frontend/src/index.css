@@ -8,4 +8,5 @@
 body {
     font-family: var(--font-display);
     background-color: #edecdf;
+    height: 100vh;
 }

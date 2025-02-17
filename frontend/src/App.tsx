@@ -15,7 +15,8 @@ function App() {
         <Route path="/" element={
             <>       
               <Navbar />
-              <Main /><Description />
+              <Main />
+              <Description />
               <Footer />
             </>
           } />
