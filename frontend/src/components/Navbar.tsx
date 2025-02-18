@@ -30,6 +30,9 @@ export default function Navbar({ title = "Eagle Exchange" }: NavbarProps) {
           </div>
         ) : location.pathname === "/account" ? (
           <div className="flex items-center sm:justify-evenly align-middle gap-4 font-semibold">
+            <button className="mr-6 px-4 py-2 hover:scale-105 hover:shadow-lg transition-shadow border border-[#0c2b9c] rounded-lg">
+              New Listing +
+            </button>
             <Link
               to="/marketplace"
               className="bg-[#0c2b9c] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg"
