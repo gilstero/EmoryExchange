@@ -27,5 +27,6 @@ urlpatterns = [
     path('transaction/', TransactionView.as_view(), name="transaction"),
     path('ride/', RideView.as_view(), name="ride"),
     path('message/', MessageView.as_view(), name="message"),
-    path('listing/', ListingView.as_view(), name="listing")
+    path('listing/', ListingView.as_view(), name="listing"), 
+    path('api/', include('members.urls'))
 ]

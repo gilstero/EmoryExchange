@@ -1,11 +1,21 @@
 # imports for views.py
 from django.http import HttpResponse
+from django.utils import timezone
 from django.template import loader
 from django.shortcuts import render
+from django.conf import settings
+from django.contrib.auth.hashers import make_password, check_password # password and reset functionality
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from . models import *
 from . serializer import *
+from datetime import datetime, timedelta
+import hashlib
+import uuid
+import os
 
 class UserView(APIView):
     # retrive the info for the table User
@@ -101,6 +111,123 @@ class ListingView(APIView):
             serializer.save()
             return Response(serializer.data)
 
-
 def control_page(request):
     return render(request, "home.html")
+
+# Below is the implementation for the user login tokens and password hashing
+# Code is from Geeks for Geeks 
+# https://www.geeksforgeeks.org/build-an-authentication-system-using-django-react-and-tailwind/
+
+URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
+
+def mail_template(content, button_url, button_text):
+    return f"""<!DOCTYPE html>
+            <html>
+            <body style="text-align: center; font-family: "Verdana", serif; color: #000;">
+                <div style="max-width: 600px; margin: 10px; background-color: #fafafa; padding: 25px; border-radius: 20px;">
+                <p style="text-align: left;">{content}</p>
+                <a href="{button_url}" target="_blank">
+                    <button style="background-color: #444394; border: 0; width: 200px; height: 30px; border-radius: 6px; color: #fff;">{button_text}</button>
+                </a>
+                <p style="text-align: left;">
+                    If you are unable to click the above button, copy paste the below URL into your address bar
+                </p>
+                <a href="{button_url}" target="_blank">
+                    <p style="margin: 0px; text-align: left; font-size: 10px; text-decoration: none;">{button_url}</p>
+                </a>
+                </div>
+            </body>
+            </html>"""
+
+
+class ForgotPasswordView(APIView):
+    def post(self, request):
+        email = request.data.get("email")
+        user = User.objects.filter(email=email).first()
+
+        if not user:
+            return Response({"success": False, "message": "User not found!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        created_at = timezone.now()
+        expires_at = created_at + timezone.timedelta(days=1)
+
+        # Secure token generation
+        token = default_token_generator.make_token(user)
+
+        token_obj = Token(user_id=user.id, token=token, created_at=created_at, expires_at=expires_at)
+        token_obj.save()
+
+        subject = "Forgot Password Link"
+        button_url = f"{URL}/resetPassword?id={user.id}&token={token}"
+        content = mail_template(
+            "We have received a request to reset your password. Please use the link below.",
+            button_url,
+            "Reset Password",
+        )
+
+        send_mail(
+            subject=subject,
+            message=content,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            html_message=content,
+            )
+
+        return Response(
+            {"success": True, "message": "A password reset link has been sent to your email."},
+            status=status.HTTP_200_OK,
+        )
+
+class ResetPasswordView(APIView):
+    def post(self, request):
+        user_id = request.data.get("id")
+        token = request.data.get("token")
+        password = request.data.get("password")
+
+        token_obj = Token.objects.filter(user_id=user_id, is_used=False).order_by("-created_at").first()
+
+        if not token_obj or token_obj.expires_at < timezone.now() or token_obj.token != token:
+            return Response(
+                {"success": False, "message": "Invalid or expired reset link!"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Reset Password
+        user = User.objects.filter(id=user_id).first()
+        if not user:
+            return Response({"success": False, "message": "User not found!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.password = make_password(password)
+        user.save()
+
+        token_obj.is_used = True
+        token_obj.save()
+
+        return Response({"success": True, "message": "Your password has been reset successfully!"}, status=status.HTTP_200_OK)
+
+class RegistrationView(APIView):
+    def post(self, request):
+        request.data["password"] = make_password(request.data["password"])
+        serializer = UserSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"success": True, "message": "You are now registered!"},
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class LoginView(APIView):
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        user = User.objects.filter(email=email).first()
+
+        if not user or not check_password(password, user.password):
+            return Response({"success": False, "message": "Invalid Login Credentials!"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response({"success": True, "message": "You are now logged in!"}, status=status.HTTP_200_OK)
