@@ -6,7 +6,7 @@ export default function Marketplace() {
   const [filter, setFilter] = useState("");
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center min-h-screen">
       {/* Navbar */}
       <Navbar />
       {/* Search and Filter Section */}

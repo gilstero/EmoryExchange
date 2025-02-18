@@ -28,11 +28,23 @@ export default function Navbar({ title = "Eagle Exchange" }: NavbarProps) {
               Sign up
             </Link>
           </div>
+        ) : location.pathname === "/account" ? (
+          <div className="flex items-center sm:justify-evenly align-middle gap-4 font-semibold">
+            <Link
+              to="/marketplace"
+              className="bg-[#0c2b9c] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg"
+            >
+              Marketplace
+            </Link>
+          </div>
         ) : (
           <div className="flex items-center sm:justify-evenly align-middle gap-4 font-semibold">
-            <button className="bg-[#0c2b9c] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg">
+            <Link
+              to="/account"
+              className="bg-[#0c2b9c] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg"
+            >
               Account
-            </button>
+            </Link>
           </div>
         )}
       </header>
