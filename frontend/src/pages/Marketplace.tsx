@@ -10,7 +10,7 @@ export default function Marketplace() {
       {/* Navbar */}
       <Navbar />
       {/* Search and Filter Section */}
-      <div className="w-full max-w-3xl bg-white shadow-md p-4 rounded-lg flex flex-col sm:flex-row items-center gap-4 mb-8">
+      <div className="w-full max-w-3xl bg-white shadow-md p-4 rounded-lg flex flex-col sm:flex-row items-center gap-4 mb-8 mt-4">
         {/* Search Bar */}
         <input
           type="text"

@@ -8,7 +8,7 @@ interface NavbarProps {
 export default function Navbar({ title = "Eagle Exchange" }: NavbarProps) {
   const location = useLocation();
   return (
-    <nav className="w-screen p-8 sticky top-0 z-[100] border-b-blue-700 bg-[#edecdf]">
+    <nav className="w-screen p-8 sticky top-0 z-[100] border-b bg-[#edecdf]">
       <header className="md:px-6 prose prose-xl mx-auto flex justify-between flex-row text-[#0c2b9c]">
         <Link
           className="text-4xl font-bold grid place-content-center mb-2 md:mb-0 font-(family-name:Jockey-One) cursor-pointer"
