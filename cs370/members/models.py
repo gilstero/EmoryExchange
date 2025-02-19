@@ -55,6 +55,10 @@ class Listing(models.Model):
         ('free', 'Free'),
         ('transport', 'Transport'),
         ('service', 'Service'),
+        ('tutoring', 'Tutoring'),
+        ('careercoach', 'Career Coaching'),
+        ('moving', 'Moving Help'),
+        ('researchassist', 'Research Assistance')
     ]
     
     LID = models.AutoField(primary_key=True)
