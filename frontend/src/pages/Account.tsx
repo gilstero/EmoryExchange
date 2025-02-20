@@ -35,7 +35,8 @@ export default function Account() {
                 className="shadow-xl rounded-full bg-[#f0f0f0] px-6 py-2 transition-shadow duration-300 hover:bg-gray-300"
                 onClick={() => setShowListings(!showListings)}
               >
-                {"Listings - Requests"}
+                <span className="mr-2">Listings</span>
+                <span className="ml-6">Requests</span>
               </button>
             </div>
           </nav>
