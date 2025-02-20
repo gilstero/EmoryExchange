@@ -56,7 +56,6 @@ class UserView(APIView):
         user.delete()
         return Response({"message": "User deleted successfully"}, status=204)
 
-
 class TransactionView(APIView):
     def get(self, request):
         output = [{"user_id_1": output.user_id_1,
@@ -219,7 +218,6 @@ def mail_template(content, button_url, button_text):
                 </div>
             </body>
             </html>"""
-
 
 class ForgotPasswordView(APIView):
     def post(self, request):
