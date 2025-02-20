@@ -42,7 +42,7 @@ class UserView(APIView):
         except:
             return Response({"error": "User not found"}, status=404)
         
-        serializer = UserSerializer(data=request.data)
+        serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
@@ -75,6 +75,26 @@ class TransactionView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
+        
+    def patch(self, request, user_id_1, user_id_2, date):
+        try:
+            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+        except:
+            return Response({"error": "Transaction not found"}, status=404)
+
+        serializer = TransactionSerializer(transaction, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+        
+    def delete(self, request, user_id_1, user_id_2, date):
+        try:
+            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+        except:
+            return Response({"error": "Transaction not found"}, status=404)
+        
+        transaction.delete()
+        return Response({"message": "Transaction deleted successfully"}, status=204)
 
 class MessageView(APIView):
     def get(self, request):
@@ -90,6 +110,26 @@ class MessageView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
+        
+    def patch(self, request, user_id_1, user_id_2, date):
+        try:
+            message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+        except:
+            return Response({"error": "Message not found"}, status=404)
+
+        serializer = MessageSerializer(message, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
+    def delete(self, request, user_id_1, user_id_2, date):
+        try:
+            message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+        except:
+            return Response({"error": "Message not found"}, status=404)
+        
+        message.delete()
+        return Response({"message": "Message deleted successfully"}, status=204)
         
 class RideView(APIView):
     def get(self, request):
@@ -131,6 +171,26 @@ class ListingView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
+        
+    def patch(self, request, listingID):
+        try:
+            listing = Listing.objects.get(LID=listingID)
+        except:
+            return Response({"error": "Listing not found"}, status=404)
+        
+        serializer = ListingSerializer(listing, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
+    def delete(self, request, listingID):
+        try:
+            listing = Listing.objects.get(LID=listingID)
+        except:
+            return Response({"error": "Listing not found"}, status=404)
+
+        listing.delete()
+        return Response({"message": "Listing deleted successfully"}, status=204)
 
 def control_page(request):
     return render(request, "home.html")
@@ -140,7 +200,6 @@ def control_page(request):
 # https://www.geeksforgeeks.org/build-an-authentication-system-using-django-react-and-tailwind/
 
 URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
-
 
 def mail_template(content, button_url, button_text):
     return f"""<!DOCTYPE html>
