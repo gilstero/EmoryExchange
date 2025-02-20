@@ -36,6 +36,27 @@ class UserView(APIView):
             serializer.save()
             return Response(serializer.data)
 
+    def patch(self, request, user_id):
+        try:
+            user = User.objects.get(user_id=user_id)
+        except:
+            return Response({"error": "User not found"}, status=404)
+        
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
+    def delete(self, request, user_id):
+        try:
+            user = User.objects.get(user_id=user_id)
+        except:
+            return Response({"error": "User not found"}, status=404)
+        
+        user.delete()
+        return Response({"message": "User deleted successfully"}, status=204)
+
+
 class TransactionView(APIView):
     def get(self, request):
         output = [{"user_id_1": output.user_id_1,
