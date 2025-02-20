@@ -19,7 +19,8 @@ export default function Listing({
 }: ListingProps) {
   return (
     <>
-      <div className="bg-[#f0f0f0] hover:border hover:border-[#0c2b9c] hover:scale-105 max-w-sm h-auto p-2 rounded-lg shadow-xl transition-shadow">
+      {/* Listing component outlines and smoothly transitions to 1.05x on hover */}
+      <div className="bg-[#f0f0f0] transition-transform duration-300 ease-in-out hover:border hover:border-[#0c2b9c] hover:scale-105 max-w-sm h-auto p-2 rounded-lg shadow-xl">
         {/* Listing title */}
         <h2 className="text-lg font-bold mb-2 text-[black] text-center">
           {title}
