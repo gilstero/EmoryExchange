@@ -23,9 +23,24 @@ from members.views import *
 urlpatterns = [
     path('', control_page, name="control page"),
     path('admin/', admin.site.urls),
+
+    #user API url
     path('user/', UserView.as_view(), name="user"),
+    path('users/<int:user_id>/', UserView.as_view()),
+
+    #transaction API url
     path('transaction/', TransactionView.as_view(), name="transaction"),
+    path('transaction/<int:user_id_1>/<int:user_id_2>/<str:date>/', TransactionView.as_view()),
+
     path('ride/', RideView.as_view(), name="ride"),
+
+    #message API url
     path('message/', MessageView.as_view(), name="message"),
-    path('listing/', ListingView.as_view(), name="listing")
+    path('message/<int:user_id_1>/<int:user_id_2>/<str:date>/', MessageView.as_view()),
+
+    #listing API url
+    path('listing/', ListingView.as_view(), name="listing"), 
+    path('listing/<int:listingID>/', ListingView.as_view()),
+
+    path('api/', include('members.urls'))
 ]

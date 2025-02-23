@@ -5,15 +5,27 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 #   firstname = models.CharField(max_length=255)
 #   lastname = models.CharField(max_length=255)
 
+# Token Table
+class Token(models.Model):
+    id = models.AutoField(primary_key=True)
+    token = models.CharField(max_length=255)
+    created_at = models.DateTimeField()
+    expires_at = models.DateTimeField()
+    user_id = models.IntegerField()
+    is_used = models.BooleanField(default=False)
+
 # User Table
 class User(models.Model):
-    user_id = models.AutoField(primary_key=True, max_length=255)
+    user_id = models.AutoField(primary_key=True)
     profile_name = models.CharField(max_length=255)
     real_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True, max_length=255)
     phone_num = models.CharField(max_length=20)
     password = models.CharField(max_length=255)
     propic = models.URLField(null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.real_name
 
 # Transaction Table
 # user1_rating and user2_rating are bounded by 1 through 5 stars with MinValueValidator and MaxValueValidator
@@ -43,6 +55,10 @@ class Listing(models.Model):
         ('free', 'Free'),
         ('transport', 'Transport'),
         ('service', 'Service'),
+        ('tutoring', 'Tutoring'),
+        ('careercoach', 'Career Coaching'),
+        ('moving', 'Moving Help'),
+        ('researchassist', 'Research Assistance')
     ]
     
     LID = models.AutoField(primary_key=True)
