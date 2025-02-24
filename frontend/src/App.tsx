@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Marketplace from "./pages/Marketplace";
 import Account from "./pages/Account";
+import NewListing from "./pages/NewListing";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/newlisting" element={<NewListing />} />
       </Routes>
     </>
   );

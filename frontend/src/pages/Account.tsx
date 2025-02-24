@@ -11,6 +11,7 @@ export default function Account() {
   return (
     <div className="flex flex-col items-center min-h-screen overflow-hidden">
       <Navbar />
+      {/*hello world*/}
       {/*Max padding without scroll bar on page is 7 */}
       <div className="flex w-full py-7 px-4 gap-x-10">
         <div className="w-1/4">
