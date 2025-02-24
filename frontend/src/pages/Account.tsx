@@ -41,7 +41,7 @@ export default function Account() {
             </div>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 px-6 py-6 flex-1 overflow-y-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 p-6 flex-1 overflow-y-auto">
             <Listing />
             <Listing />
             <Listing />

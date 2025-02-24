@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
+import Listing from "../components/Listing";
 
 export default function Marketplace() {
   const [search, setSearch] = useState("");
@@ -40,6 +41,12 @@ export default function Marketplace() {
         Browse and connect with Emory freelancers offering services like
         tutoring, career coaching, dorm help, and more.
       </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-6 p-6">
+        <Listing />
+        <Listing />
+        <Listing />
+        <Listing />
+      </div>
     </div>
   );
 }

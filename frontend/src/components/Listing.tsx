@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import Tag from "./Tag";
 
 interface ListingProps {
   title?: string;
@@ -21,6 +22,10 @@ export default function Listing({
     <>
       {/* Listing component outlines and smoothly transitions to 1.05x on hover */}
       <div className="bg-[#f0f0f0] transition-transform duration-300 ease-in-out hover:border hover:border-[#0c2b9c] hover:scale-105 max-w-sm h-auto p-2 rounded-lg shadow-xl">
+        {/* Eventually add so that it is a different color for each tag */}
+        <div className="">
+          <Tag />
+        </div>
         {/* Listing title */}
         <h2 className="text-lg font-bold mb-2 text-[black] text-center">
           {title}
