@@ -12,8 +12,8 @@ export default function Account() {
     <div className="flex flex-col items-center min-h-screen overflow-hidden">
       <Navbar />
       {/*Max padding without scroll bar on page is 7 */}
-      <div className="flex w-full py-7 px-4 gap-x-10">
-        <div className="w-1/4">
+      <div className="flex flex-col sm:flex-row w-full py-7 px-4 gap-x-10">
+        <div className="w-1/2 lg:w-1/4 flex justify-center">
           <AccountProfile name={name} email={email} phoneNum={phoneNum} />
         </div>
         {/* Border for listings and requests */}
@@ -41,7 +41,7 @@ export default function Account() {
             </div>
           </nav>
 
-          <div className="grid grid-cols-3 gap-6 px-6 py-6 flex-1 overflow-y-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 px-6 py-6 flex-1 overflow-y-auto">
             <Listing />
             <Listing />
             <Listing />
