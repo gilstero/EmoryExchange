@@ -287,8 +287,16 @@ class ResetPasswordView(APIView):
 
 class RegistrationView(APIView):
     def post(self, request):
+        required_fields = ["email", "password"]
+
+        # Check if required fields are present
+        for field in required_fields:
+            if field not in request.data:
+                return Response({"success": False, "message": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
         request.data["password"] = make_password(request.data["password"])
-        serializer = UserSerializer(data=request.data)
+
+        serializer = UserSerializer(data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()

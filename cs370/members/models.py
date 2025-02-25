@@ -17,10 +17,10 @@ class Token(models.Model):
 # User Table
 class User(models.Model):
     user_id = models.AutoField(primary_key=True)
-    profile_name = models.CharField(max_length=255)
-    real_name = models.CharField(max_length=255)
+    profile_name = models.CharField(max_length=255, blank=True, null=True)
+    real_name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(unique=True, max_length=255)
-    phone_num = models.CharField(max_length=20)
+    phone_num = models.CharField(max_length=20, blank=True, null=True)
     password = models.CharField(max_length=255)
     propic = models.URLField(null=True, blank=True)
 

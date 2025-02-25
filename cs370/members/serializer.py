@@ -7,6 +7,12 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['user_id', 'profile_name', 'real_name', 'email', 
                   'phone_num', 'password', 'propic']
+        extra_kwargs = {
+            "profile_name": {"required": False},
+            "real_name": {"required": False},
+            "phone_num": {"required": False},
+            "propic": {"required": False},
+        }
 
 # Transaction Database Serializer
 class TransactionSerializer(serializers.ModelSerializer):
