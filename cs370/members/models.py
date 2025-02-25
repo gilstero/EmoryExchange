@@ -16,7 +16,7 @@ class Token(models.Model):
 
 # User Table
 class User(models.Model):
-    user_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     profile_name = models.CharField(max_length=255, blank=True, null=True)
     real_name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(unique=True, max_length=255)

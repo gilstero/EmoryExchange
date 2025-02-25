@@ -4,12 +4,15 @@ from django.utils import timezone
 from django.template import loader
 from django.shortcuts import render
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password # password and reset functionality
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 from . models import *
 from . serializer import *
 from datetime import datetime, timedelta
@@ -20,7 +23,7 @@ import os
 class UserView(APIView):
     # retrive the info for the table User
     def get(self, request):
-        output = [{"user_id": output.user_id, 
+        output = [{"user_id": output.id, 
                    "profile_name": output.profile_name,
                    "real_name": output.real_name,
                    "email": output.email,
@@ -36,9 +39,11 @@ class UserView(APIView):
             serializer.save()
             return Response(serializer.data)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def patch(self, request, user_id):
         try:
-            user = User.objects.get(user_id=user_id)
+            user = User.objects.get(id=user_id)
         except:
             return Response({"error": "User not found"}, status=404)
         
@@ -49,7 +54,7 @@ class UserView(APIView):
 
     def delete(self, request, user_id):
         try:
-            user = User.objects.get(user_id=user_id)
+            user = User.objects.get(id=user_id)
         except:
             return Response({"error": "User not found"}, status=404)
         
@@ -294,6 +299,14 @@ class RegistrationView(APIView):
             if field not in request.data:
                 return Response({"success": False, "message": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Email validation for emory.edu
+        email = request.data.get("email")
+        if not email.endswith('@emory.edu'):
+            return Response(
+                {"success": False, "message": "Please use a valid @emory.edu email address."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         request.data["password"] = make_password(request.data["password"])
 
         serializer = UserSerializer(data=request.data, partial=True)
@@ -308,27 +321,60 @@ class RegistrationView(APIView):
         return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
-    def post(self, request, format=None):
-        email = request.data["email"]
-        password = request.data["password"]
-        
-        # Fetch the user by email
+    # Implemented JWT token
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        # Authenticate user
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             return Response(
-                {"success": False, "message": "Invalid Login Credentials!"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"success": False, "message": "Invalid login credentials!"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Check if the password matches the hashed one
         if not check_password(password, user.password):
             return Response(
-                {"success": False, "message": "Invalid Login Credentials!"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"success": False, "message": "Invalid login credentials!"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        return Response(
-            {"success": True, "message": "You are now logged in!"},
-            status=status.HTTP_200_OK,
-        )
+
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        return Response({
+            "success": True,
+            "message": "You are now logged in!",
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }, status=status.HTTP_200_OK)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Successfully logged out!"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+###
+# Protected and private views
+
+class PublicView(APIView):
+    def get(self, request):
+        return Response({"message": "public endpoint"})
+    
+class ProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"message": "authenticated", "user": request.user.email})

@@ -5,7 +5,7 @@ from . models import *
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['user_id', 'profile_name', 'real_name', 'email', 
+        fields = ['id', 'profile_name', 'real_name', 'email', 
                   'phone_num', 'password', 'propic']
         extra_kwargs = {
             "profile_name": {"required": False},
@@ -13,6 +13,12 @@ class UserSerializer(serializers.ModelSerializer):
             "phone_num": {"required": False},
             "propic": {"required": False},
         }
+
+        def validate_email(self, value):
+            # Check if the email ends with @emory.edu
+            if not value.endswith('@emory.edu'):
+                raise serializers.ValidationError("Please use a valid @emory.edu email address.")
+            return value
 
 # Transaction Database Serializer
 class TransactionSerializer(serializers.ModelSerializer):

@@ -4,7 +4,7 @@ from .models import User, Transaction, Listing, Message, Ride, Token
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'profile_name', 'real_name', 'email', 'phone_num')
+    list_display = ('id', 'profile_name', 'real_name', 'email', 'phone_num')
     search_fields = ('email', 'profile_name', 'real_name')
     list_filter = ('email', 'phone_num')
     fields = ('profile_name', 'real_name', 'email', 'phone_num', 'password', 'propic')
