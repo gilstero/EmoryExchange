@@ -303,18 +303,24 @@ class LoginView(APIView):
     def post(self, request, format=None):
         email = request.data["email"]
         password = request.data["password"]
-        hashed_password = make_password(password=password, salt=SALT)
-        user = User.objects.get(email=email)
-        if user is None or user.password != hashed_password:
+        
+        # Fetch the user by email
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
             return Response(
-                {
-                    "success": False,
-                    "message": "Invalid Login Credentials!",
-                },
-                status=status.HTTP_200_OK,
+                {"success": False, "message": "Invalid Login Credentials!"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        else:
+
+        # Check if the password matches the hashed one
+        if not check_password(password, user.password):
             return Response(
-                {"success": True, "message": "You are now logged in!"},
-                status=status.HTTP_200_OK,
+                {"success": False, "message": "Invalid Login Credentials!"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+
+        return Response(
+            {"success": True, "message": "You are now logged in!"},
+            status=status.HTTP_200_OK,
+        )
