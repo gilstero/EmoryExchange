@@ -63,8 +63,8 @@ class UserView(APIView):
 
 class TransactionView(APIView):
     def get(self, request):
-        output = [{"user_id_1": output.user_id_1,
-                   "user_id_2": output.user_id_2,
+        output = [{"user_id_1": output.id_1,
+                   "user_id_2": output.id_2,
                    "amount": output.amount,
                    "date": output.date,
                    "user1_rating": output.user1_rating,
@@ -82,7 +82,7 @@ class TransactionView(APIView):
         
     def patch(self, request, user_id_1, user_id_2, date):
         try:
-            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+            transaction = Transaction.objects.get(id_1=user_id_1, id_2=user_id_2, date=date)
         except:
             return Response({"error": "Transaction not found"}, status=404)
 
@@ -93,7 +93,7 @@ class TransactionView(APIView):
         
     def delete(self, request, user_id_1, user_id_2, date):
         try:
-            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+            transaction = Transaction.objects.get(id_1=user_id_1, id_2=user_id_2, date=date)
         except:
             return Response({"error": "Transaction not found"}, status=404)
         
@@ -352,7 +352,6 @@ class LoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
@@ -364,7 +363,6 @@ class LoginView(APIView):
             "access_token": access_token,
             "refresh_token": refresh_token
         }, status=status.HTTP_200_OK)
-
 
 class LogoutView(APIView):
     def post(self, request):

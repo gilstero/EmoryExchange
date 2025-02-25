@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = ['user_id_1', 'user_id_2', 'amount', 'date', 
+        fields = ['id_1', 'id_2', 'amount', 'date', 
                   'user1_rating', 'user2_rating', 'user1_notes', 'user2_notes']
 
 class RideSerializer(serializers.ModelSerializer):
