@@ -21,12 +21,13 @@ from django.urls import include, path
 from members.views import *
 
 urlpatterns = [
+    # This is the basic control page with the buttons to the endpoints for navigation
     path('', control_page, name="control page"),
     path('admin/', admin.site.urls),
 
     #user API url
     path('user/', UserView.as_view(), name="user"),
-    path('users/<int:user_id>/', UserView.as_view()),
+    path('user/<int:user_id>/', UserView.as_view()),
 
     #transaction API url
     path('transaction/', TransactionView.as_view(), name="transaction"),
@@ -42,5 +43,16 @@ urlpatterns = [
     path('listing/', ListingView.as_view(), name="listing"), 
     path('listing/<int:listingID>/', ListingView.as_view()),
 
-    path('api/', include('members.urls'))
+    path("register/", RegistrationView.as_view(), name="register"),
+
+    path("login/", LoginView.as_view(), name="login"),
+
+    path("logout/", LogoutView.as_view(), name="logout"),
+
+
+
+
+    # unimplemented
+    path("forgotPassword/", ForgotPasswordView.as_view(), name="forgotPassword"),
+    path("resetPassword/", ResetPasswordView.as_view(), name="resetPassword"),
 ]
