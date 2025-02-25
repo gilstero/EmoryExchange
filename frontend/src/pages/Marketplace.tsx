@@ -8,6 +8,7 @@ interface Listing {
   tag: string;
   amount: number;
   status: string;
+  ldate: string | Date;
 }
 
 export default function Marketplace() {
@@ -16,7 +17,7 @@ export default function Marketplace() {
   const [listings, setListings] = useState<Listing[]>([])
 
   const fetchListings = () => {
-    axios.get("http://127.0.0.1:8000/listing/") 
+    axios.get("http://127.0.0.1:8000/listing/")
         .then(response => {
             console.log(response)
             setListings(response.data)
@@ -26,12 +27,13 @@ export default function Marketplace() {
         })
   }
 
+  // replace array with listings var
   useEffect(() => {
     fetchListings()
   }, []);
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100 p-8">
+    <div className="flex flex-col items-center min-h-screen p-8">
       {/* Search and Filter Section */}
       <div className="w-full max-w-3xl bg-white shadow-md p-4 rounded-lg flex flex-col sm:flex-row items-center gap-4 mb-8">
         {/* Search Bar */}
@@ -64,19 +66,27 @@ export default function Marketplace() {
       </p>
       <div className="mt-4">
           <h1 className="text-4xl text-center font-bold mb-4">Listings</h1>
-          <ul>
-              {listings.map(listing => {
-                console.log(listing)
-                return (
-                  <li key={listing.LID}>
-                      <h3 className="text-xl text-center font-bold">{listing.title}</h3>
-                      <p>{listing.description}</p>
-                      <p>{listing.tag}</p>
-                      <p>Amount: ${listing.amount}</p>
-                      <p>Status: {listing.status}</p>
-                  </li>
-              )})}
-          </ul>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+            {listings.map((listing) => (
+              <div
+                key={listing.LID}
+                className="bg-white shadow-md rounded-lg p-6 flex flex-col items-start"
+              >
+                <h3 className="text-xl font-bold text-[#0c2b9c] mb-2 text-center w-full">
+                  {listing.title}
+                </h3>
+                <p className="text-gray-700 mb-2">{listing.description}</p>
+                <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm">
+                  {listing.tag}
+                </span>
+                <p className="mt-2 font-semibold">Amount: ${listing.amount}</p>
+                <p className={`mt-1 ${listing.status === "live" ? "text-green-600" : "text-red-600"}`}>
+                  Status: {listing.status}
+                </p>
+                <p className="mt-2 font-semibold">{new Date(listing.ldate).toLocaleDateString()}</p>
+              </div>
+            ))}
+          </div>
         </div>
     </div>
   );

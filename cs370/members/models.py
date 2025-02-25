@@ -94,3 +94,4 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message from {self.user_id_1.profile_name} to {self.user_id_2.profile_name}"
+    
