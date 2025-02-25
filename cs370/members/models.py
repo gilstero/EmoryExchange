@@ -25,7 +25,10 @@ class User(models.Model):
     propic = models.URLField(null=True, blank=True)
 
     def __str__(self) -> str:
-        return self.real_name
+        if self.real_name:
+            return self.real_name
+        else:
+            return "No Profile name"
 
 # Transaction Table
 # user1_rating and user2_rating are bounded by 1 through 5 stars with MinValueValidator and MaxValueValidator

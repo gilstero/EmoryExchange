@@ -23,13 +23,13 @@ import os
 class UserView(APIView):
     # retrive the info for the table User
     def get(self, request):
-        output = [{"user_id": output.id, 
-                   "profile_name": output.profile_name,
-                   "real_name": output.real_name,
-                   "email": output.email,
-                   "phone_num": output.phone_num,
-                   "password": output.password, 
-                   "propic": output.propic}
+        output = [{"user_id": output.id,
+                "profile_name": output.profile_name if output.profile_name else "Not Provided",
+                "real_name": output.real_name if output.real_name else "Not Provided",
+                "email": output.email if output.email else "Not Provided",
+                "phone_num": output.phone_num if output.phone_num else "Not Provided",
+                "password": output.password if output.password else "Not Provided",  # Be cautious here, avoid sending password
+                "propic": output.propic if output.propic else "Not Provided"}
                   for output in User.objects.all()]
         return Response(output)
     
