@@ -307,6 +307,17 @@ class RegistrationView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        password = request.data.get("password")
+
+        if 6 >= len(password):
+            return Response(
+                {"sucess": False, "message": "Invalid password length (Too Short)"}
+            )
+        if len(password) >= 18:
+            return Response(
+                {"sucess": False, "message": "Invalid password length (Too Long)"}
+            )
+
         request.data["password"] = make_password(request.data["password"])
 
         serializer = UserSerializer(data=request.data, partial=True)
