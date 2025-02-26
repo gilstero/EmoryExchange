@@ -1,34 +1,34 @@
 # imports for views.py
-from django.http import HttpResponse
 from django.utils import timezone
-from django.template import loader
 from django.shortcuts import render
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password # password and reset functionality
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from . models import *
 from . serializer import *
 from datetime import datetime, timedelta
-import hashlib
-import uuid
 import os
 
 class UserView(APIView):
     # retrive the info for the table User
+    permission_classes = (IsAuthenticated,)
+    
     def get(self, request):
-        output = [{"user_id": output.user_id, 
-                   "profile_name": output.profile_name,
-                   "real_name": output.real_name,
-                   "email": output.email,
-                   "phone_num": output.phone_num,
-                   "password": output.password, 
-                   "propic": output.propic}
-                  for output in User.objects.all()]
-        return Response(output)
+        try:
+            print("User: ", request.user)
+            user = request.user
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=200)
+        except:
+            return Response({"error": "User ID must be provided"}, status=400)
     
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -36,9 +36,11 @@ class UserView(APIView):
             serializer.save()
             return Response(serializer.data)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def patch(self, request, user_id):
         try:
-            user = User.objects.get(user_id=user_id)
+            user = User.objects.get(id=user_id)
         except:
             return Response({"error": "User not found"}, status=404)
         
@@ -49,7 +51,7 @@ class UserView(APIView):
 
     def delete(self, request, user_id):
         try:
-            user = User.objects.get(user_id=user_id)
+            user = User.objects.get(id=user_id)
         except:
             return Response({"error": "User not found"}, status=404)
         
@@ -57,9 +59,10 @@ class UserView(APIView):
         return Response({"message": "User deleted successfully"}, status=204)
 
 class TransactionView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
-        output = [{"user_id_1": output.user_id_1,
-                   "user_id_2": output.user_id_2,
+        output = [{"user_id_1": output.id_1,
+                   "user_id_2": output.id_2,
                    "amount": output.amount,
                    "date": output.date,
                    "user1_rating": output.user1_rating,
@@ -77,7 +80,7 @@ class TransactionView(APIView):
         
     def patch(self, request, user_id_1, user_id_2, date):
         try:
-            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+            transaction = Transaction.objects.get(id_1=user_id_1, id_2=user_id_2, date=date)
         except:
             return Response({"error": "Transaction not found"}, status=404)
 
@@ -88,7 +91,7 @@ class TransactionView(APIView):
         
     def delete(self, request, user_id_1, user_id_2, date):
         try:
-            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+            transaction = Transaction.objects.get(id_1=user_id_1, id_2=user_id_2, date=date)
         except:
             return Response({"error": "Transaction not found"}, status=404)
         
@@ -96,6 +99,7 @@ class TransactionView(APIView):
         return Response({"message": "Transaction deleted successfully"}, status=204)
 
 class MessageView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
         output = [{"user_id_1": message.user_id_1,
                    "user_id_2": message.user_id_2,
@@ -131,6 +135,7 @@ class MessageView(APIView):
         return Response({"message": "Message deleted successfully"}, status=204)
         
 class RideView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
         output = [{"user_id_1": ride.user_id_1,
                    "user_id_2": ride.user_id_2,
@@ -151,9 +156,10 @@ class RideView(APIView):
             return Response(serializer.data)
 
 class ListingView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
         output = [{"LID": listing.LID,
-                   "user_id": listing.user_id,
+                   "user_id": listing.id,
                    "amount": listing.amount,
                    "ldate": listing.ldate,
                    "img": listing.img,
@@ -199,6 +205,7 @@ def control_page(request):
 # https://www.geeksforgeeks.org/build-an-authentication-system-using-django-react-and-tailwind/
 
 URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+SALT = "8b4f6b2cc1868d75ef79e5cfb8779c11b6a374bf0fce05b485581bf4e1e25b96c8c2855015de8449"
 
 def mail_template(content, button_url, button_text):
     return f"""<!DOCTYPE html>
@@ -285,9 +292,37 @@ class ResetPasswordView(APIView):
         return Response({"success": True, "message": "Your password has been reset successfully!"}, status=status.HTTP_200_OK)
 
 class RegistrationView(APIView):
+
     def post(self, request):
+        required_fields = ["email", "password"]
+
+        # Check if required fields are present
+        for field in required_fields:
+            if field not in request.data:
+                return Response({"success": False, "message": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Email validation for emory.edu
+        email = request.data.get("email")
+        if not email.endswith('@emory.edu'):
+            return Response(
+                {"success": False, "message": "Please use a valid @emory.edu email address."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        password = request.data.get("password")
+
+        if 6 >= len(password):
+            return Response(
+                {"sucess": False, "message": "Invalid password length (Too Short)"}
+            )
+        if len(password) >= 18:
+            return Response(
+                {"sucess": False, "message": "Invalid password length (Too Long)"}
+            )
+
         request.data["password"] = make_password(request.data["password"])
-        serializer = UserSerializer(data=request.data)
+
+        serializer = UserSerializer(data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -299,13 +334,55 @@ class RegistrationView(APIView):
         return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
+    permission_classes = (AllowAny, )
     def post(self, request):
         email = request.data.get("email")
         password = request.data.get("password")
 
-        user = User.objects.filter(email=email).first()
+        # Authenticate user
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"success": False, "message": "Invalid login credentials!"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        if not user or not check_password(password, user.password):
-            return Response({"success": False, "message": "Invalid Login Credentials!"}, status=status.HTTP_401_UNAUTHORIZED)
+        if not check_password(password, user.password):
+            return Response(
+                {"success": False, "message": "Invalid login credentials!"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        return Response({"success": True, "message": "You are now logged in!"}, status=status.HTTP_200_OK)
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        user_serializer = UserSerializer(user)
+
+        return Response({
+            "success": True,
+            "message": "You are now logged in!",
+            "user": user_serializer.data,
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh)
+        }, status=status.HTTP_200_OK)
+
+class LogoutView(APIView):
+    
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+            print(refresh_token)
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            
+            return Response({
+                "success": True,
+                "message": "You have been successfully logged out!"
+            }, status=status.HTTP_200_OK)
+
+        
+        except Exception as e:
+            return Response({
+                "success": False,
+                "message": "Invalid token or token has been blacklisted!"
+            }, status=status.HTTP_400_BAD_REQUEST)
