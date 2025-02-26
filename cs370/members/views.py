@@ -9,7 +9,7 @@ from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from . models import *
@@ -19,31 +19,16 @@ import os
 
 class UserView(APIView):
     # retrive the info for the table User
-    authentication_classes = [JWTAuthentication]  # No authentication needed
-    permission_classes = [IsAuthenticated]
-    def get(self, request, user_id=None):
-        # output = [{"user_id": output.id,
-        #         "profile_name": output.profile_name if output.profile_name else "Not Provided",
-        #         "real_name": output.real_name if output.real_name else "Not Provided",
-        #         "email": output.email if output.email else "Not Provided",
-        #         "phone_num": output.phone_num if output.phone_num else "Not Provided",
-        #         "password": output.password if output.password else "Not Provided",  # Be cautious here, avoid sending password
-        #         "propic": output.propic if output.propic else "Not Provided"}
-        #           for output in User.objects.all()]
-        # return Response(output)
-
-        # Case when user_id is provided in the URL
-        if user_id:
-            try:
-                user = User.objects.get(id=user_id)
-            except User.DoesNotExist:
-                return Response({"error": "User not found"}, status=404)
-            
-            # Serialize the user data (exclude password for security)
+    permission_classes = (IsAuthenticated,)
+    
+    def get(self, request):
+        try:
+            print("User: ", request.user)
+            user = request.user
             serializer = UserSerializer(user)
             return Response(serializer.data, status=200)
-        
-        return Response({"error": "User ID must be provided"}, status=400)
+        except:
+            return Response({"error": "User ID must be provided"}, status=400)
     
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -303,8 +288,6 @@ class ResetPasswordView(APIView):
         return Response({"success": True, "message": "Your password has been reset successfully!"}, status=status.HTTP_200_OK)
 
 class RegistrationView(APIView):
-    authentication_classes = []  # Disable authentication for this view
-    permission_classes = []
 
     def post(self, request):
         required_fields = ["email", "password"]
@@ -347,9 +330,7 @@ class RegistrationView(APIView):
         return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
-    authentication_classes = []  # Disable authentication for this view
-    permission_classes = []
-
+    permission_classes = (AllowAny, )
     def post(self, request):
         email = request.data.get("email")
         password = request.data.get("password")
@@ -371,14 +352,14 @@ class LoginView(APIView):
 
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        refresh_token = str(refresh)
+        user_serializer = UserSerializer(user)
 
         return Response({
             "success": True,
             "message": "You are now logged in!",
-            "access_token": access_token,
-            "refresh_token": refresh_token
+            "user": user_serializer.data,
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh)
         }, status=status.HTTP_200_OK)
 
 class LogoutView(APIView):

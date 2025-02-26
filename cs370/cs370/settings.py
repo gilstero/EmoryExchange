@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'cs370',
     'members',
     'rest_framework',
+    'rest_framework_simplejwt',
     'rest_framework.authtoken',
     'corsheaders',
 ]
@@ -60,13 +61,12 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-}
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],}
 
 SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,  # Optional: Blacklists refresh tokens after they're rotated
@@ -74,6 +74,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'BLACKLIST_ENABLED': True,
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -95,6 +96,8 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTH_USER_MODEL = 'members.User'
 
 WSGI_APPLICATION = "cs370.wsgi.application"
 

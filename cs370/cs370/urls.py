@@ -19,6 +19,10 @@ from django.contrib import admin
 from django.urls import include, path
 # from django.conf.urls import url
 from members.views import *
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
     # This is the basic control page with the buttons to the endpoints for navigation
@@ -26,31 +30,30 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     #user API url
-    path('user/', UserView.as_view(), name="user"),
-    path('user/<int:user_id>/', UserView.as_view()),
+    path('api/auth/user/', UserView.as_view(), name="user"),
 
     #transaction API url
-    path('transaction/', TransactionView.as_view(), name="transaction"),
-    path('transaction/<int:user_id_1>/<int:user_id_2>/<str:date>/', TransactionView.as_view()),
+    path('api/auth/transaction/', TransactionView.as_view(), name="transaction"),
+    path('api/auth/transaction/<int:user_id_1>/<int:user_id_2>/<str:date>/', TransactionView.as_view()),
 
-    path('ride/', RideView.as_view(), name="ride"),
+    path('api/auth/ride/', RideView.as_view(), name="ride"),
 
     #message API url
-    path('message/', MessageView.as_view(), name="message"),
-    path('message/<int:user_id_1>/<int:user_id_2>/<str:date>/', MessageView.as_view()),
+    path('api/auth/message/', MessageView.as_view(), name="message"),
+    path('api/auth/message/<int:user_id_1>/<int:user_id_2>/<str:date>/', MessageView.as_view()),
 
     #listing API url
-    path('listing/', ListingView.as_view(), name="listing"), 
-    path('listing/<int:listingID>/', ListingView.as_view()),
+    path('api/auth/listing/', ListingView.as_view(), name="listing"), 
+    path('api/auth/listing/<int:listingID>/', ListingView.as_view()),
 
-    path("register/", RegistrationView.as_view(), name="register"),
+    path("api/auth/register/", RegistrationView.as_view(), name="register"),
 
-    path("login/", LoginView.as_view(), name="login"),
+    path("api/auth/login/", LoginView.as_view(), name="login"),
 
-    path("logout/", LogoutView.as_view(), name="logout"),
+    path("api/auth/logout/", LogoutView.as_view(), name="logout"),
 
-
-
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # unimplemented
     path("forgotPassword/", ForgotPasswordView.as_view(), name="forgotPassword"),
