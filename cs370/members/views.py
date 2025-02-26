@@ -59,6 +59,7 @@ class UserView(APIView):
         return Response({"message": "User deleted successfully"}, status=204)
 
 class TransactionView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
         output = [{"user_id_1": output.id_1,
                    "user_id_2": output.id_2,
@@ -98,6 +99,7 @@ class TransactionView(APIView):
         return Response({"message": "Transaction deleted successfully"}, status=204)
 
 class MessageView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
         output = [{"user_id_1": message.user_id_1,
                    "user_id_2": message.user_id_2,
@@ -133,6 +135,7 @@ class MessageView(APIView):
         return Response({"message": "Message deleted successfully"}, status=204)
         
 class RideView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
         output = [{"user_id_1": ride.user_id_1,
                    "user_id_2": ride.user_id_2,
@@ -153,9 +156,10 @@ class RideView(APIView):
             return Response(serializer.data)
 
 class ListingView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
         output = [{"LID": listing.LID,
-                   "user_id": listing.user_id,
+                   "user_id": listing.id,
                    "amount": listing.amount,
                    "ldate": listing.ldate,
                    "img": listing.img,
