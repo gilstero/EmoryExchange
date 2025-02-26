@@ -14,12 +14,6 @@ class UserSerializer(serializers.ModelSerializer):
             "propic": {"required": False},
         }
 
-        def validate_email(self, value):
-            # Check if the email ends with @emory.edu
-            if not value.endswith('@emory.edu'):
-                raise serializers.ValidationError("Please use a valid @emory.edu email address.")
-            return value
-
 # Transaction Database Serializer
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,11 +38,5 @@ class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
         fields = ['LID', 'id', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']
-
-# Token Database Serializer
-class TokenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Token
-        fields = ["token", "created_at", "expires_at", "user_id", "is_used"]
 
 

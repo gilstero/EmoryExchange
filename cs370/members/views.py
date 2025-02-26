@@ -14,7 +14,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from . models import *
 from . serializer import *
-from datetime import datetime, timedelta
 import os
 
 class UserView(APIView):
@@ -38,22 +37,21 @@ class UserView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, user_id):
-        try:
-            user = User.objects.get(id=user_id)
-        except:
-            return Response({"error": "User not found"}, status=404)
+    def patch(self, request):
+        user = request.user
         
+        if not user:
+            return Response({"error": "User not found from token"}, status=404)
+
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
 
-    def delete(self, request, user_id):
-        try:
-            user = User.objects.get(id=user_id)
-        except:
-            return Response({"error": "User not found"}, status=404)
+    def delete(self, request):
+        user = request.user
+        if not user:
+            return Response({"error": "User not found from token"}, status=404)
         
         user.delete()
         return Response({"message": "User deleted successfully"}, status=204)
@@ -157,18 +155,24 @@ class RideView(APIView):
 
 class ListingView(APIView):
     permission_classes = (IsAuthenticated,)
+
     def get(self, request):
-        output = [{"LID": listing.LID,
-                   "user_id": listing.id,
-                   "amount": listing.amount,
-                   "ldate": listing.ldate,
-                   "img": listing.img,
-                   "recurring": listing.recurring,
-                   "tag": listing.tag,
-                   "status": listing.status,
-                   "title": listing.title,
-                   "description": listing.description}
-                  for listing in Listing.objects.all()]
+        output = []
+        for listing in Listing.objects.all():
+            user_serializer = UserSerializer(listing.id)  # Serialize the user associated with the listing
+            
+            output.append({
+                "LID": listing.LID,
+                "user": user_serializer.data,
+                "amount": listing.amount,
+                "ldate": listing.ldate,
+                "img": listing.img,
+                "recurring": listing.recurring,
+                "tag": listing.tag,
+                "status": listing.status,
+                "title": listing.title,
+                "description": listing.description
+            })
         return Response(output)
     
     def post(self, request):
@@ -177,22 +181,24 @@ class ListingView(APIView):
             serializer.save()
             return Response(serializer.data)
         
-    def patch(self, request, listingID):
+    def patch(self, request):
+        user = request.user
         try:
-            listing = Listing.objects.get(LID=listingID)
-        except:
-            return Response({"error": "Listing not found"}, status=404)
+            listing = Listing.objects.get(LID=request.data.get('LID'), id=user.id)
+        except Listing.DoesNotExist:
+            return Response({"error": "Listing not found or unauthorized"}, status=404)
         
-        serializer = ListingSerializer(listing, data=request.data)
+        serializer = ListingSerializer(listing, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
 
-    def delete(self, request, listingID):
+    def delete(self, request):
+        user = request.user
         try:
-            listing = Listing.objects.get(LID=listingID)
-        except:
-            return Response({"error": "Listing not found"}, status=404)
+            listing = Listing.objects.get(LID=request.data.get('LID'), id=user.id)
+        except Listing.DoesNotExist:
+            return Response({"error": "Listing not found or unauthorized"}, status=404)
 
         listing.delete()
         return Response({"message": "Listing deleted successfully"}, status=204)
