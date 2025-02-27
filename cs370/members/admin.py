@@ -1,6 +1,6 @@
 from django.contrib import admin
 # import the database models that have been used
-from .models import User, Transaction, Listing, Message, Ride
+from .models import User, Transaction, Listing, Message, Ride, Token
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -35,3 +35,4 @@ admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Listing, ListingAdmin)
 admin.site.register(Ride, RideAdmin)
 admin.site.register(Message, MessageAdmin)
+admin.site.register(Token)

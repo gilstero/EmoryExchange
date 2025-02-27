@@ -37,4 +37,16 @@ class MessageSerializer(serializers.ModelSerializer):
 class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
+<<<<<<< HEAD
         fields = ['LID', 'id', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']
+=======
+        fields = ['LID', 'user', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']
+
+# Token Database Serializer
+class TokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Token
+        fields = ["token", "created_at", "expires_at", "user_id", "is_used"]
+
+
+>>>>>>> backend

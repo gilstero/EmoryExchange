@@ -1,8 +1,16 @@
 # imports for views.py
+<<<<<<< HEAD
 from django.utils import timezone
 from django.shortcuts import render
 from django.conf import settings
 from django.contrib.auth import authenticate
+=======
+from django.http import HttpResponse
+from django.utils import timezone
+from django.template import loader
+from django.shortcuts import render
+from django.conf import settings
+>>>>>>> backend
 from django.contrib.auth.hashers import make_password, check_password # password and reset functionality
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -14,6 +22,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from . models import *
 from . serializer import *
+<<<<<<< HEAD
+=======
+from datetime import datetime, timedelta
+import hashlib
+import uuid
+>>>>>>> backend
 import os
 
 class UserView(APIView):
@@ -35,6 +49,7 @@ class UserView(APIView):
             serializer.save()
             return Response(serializer.data)
 
+<<<<<<< HEAD
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
@@ -43,15 +58,31 @@ class UserView(APIView):
         if not user:
             return Response({"error": "User not found from token"}, status=404)
 
+=======
+    def patch(self, request, user_id):
+        try:
+            user = User.objects.get(user_id=user_id)
+        except:
+            return Response({"error": "User not found"}, status=404)
+        
+>>>>>>> backend
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
 
+<<<<<<< HEAD
     def delete(self, request):
         user = request.user
         if not user:
             return Response({"error": "User not found from token"}, status=404)
+=======
+    def delete(self, request, user_id):
+        try:
+            user = User.objects.get(user_id=user_id)
+        except:
+            return Response({"error": "User not found"}, status=404)
+>>>>>>> backend
         
         user.delete()
         return Response({"message": "User deleted successfully"}, status=204)
@@ -78,7 +109,11 @@ class TransactionView(APIView):
         
     def patch(self, request, user_id_1, user_id_2, date):
         try:
+<<<<<<< HEAD
             transaction = Transaction.objects.get(id_1=user_id_1, id_2=user_id_2, date=date)
+=======
+            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+>>>>>>> backend
         except:
             return Response({"error": "Transaction not found"}, status=404)
 
@@ -89,7 +124,11 @@ class TransactionView(APIView):
         
     def delete(self, request, user_id_1, user_id_2, date):
         try:
+<<<<<<< HEAD
             transaction = Transaction.objects.get(id_1=user_id_1, id_2=user_id_2, date=date)
+=======
+            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+>>>>>>> backend
         except:
             return Response({"error": "Transaction not found"}, status=404)
         
@@ -181,6 +220,7 @@ class ListingView(APIView):
             serializer.save()
             return Response(serializer.data)
         
+<<<<<<< HEAD
     def patch(self, request):
         user = request.user
         try:
@@ -189,16 +229,33 @@ class ListingView(APIView):
             return Response({"error": "Listing not found or unauthorized"}, status=404)
         
         serializer = ListingSerializer(listing, data=request.data, partial=True)
+=======
+    def patch(self, request, listingID):
+        try:
+            listing = Listing.objects.get(LID=listingID)
+        except:
+            return Response({"error": "Listing not found"}, status=404)
+        
+        serializer = ListingSerializer(listing, data=request.data)
+>>>>>>> backend
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
 
+<<<<<<< HEAD
     def delete(self, request):
         user = request.user
         try:
             listing = Listing.objects.get(LID=request.data.get('LID'), id=user.id)
         except Listing.DoesNotExist:
             return Response({"error": "Listing not found or unauthorized"}, status=404)
+=======
+    def delete(self, request, listingID):
+        try:
+            listing = Listing.objects.get(LID=listingID)
+        except:
+            return Response({"error": "Listing not found"}, status=404)
+>>>>>>> backend
 
         listing.delete()
         return Response({"message": "Listing deleted successfully"}, status=204)
@@ -298,6 +355,7 @@ class ResetPasswordView(APIView):
         return Response({"success": True, "message": "Your password has been reset successfully!"}, status=status.HTTP_200_OK)
 
 class RegistrationView(APIView):
+<<<<<<< HEAD
 
     def post(self, request):
         required_fields = ["email", "password"]
@@ -329,6 +387,11 @@ class RegistrationView(APIView):
         request.data["password"] = make_password(request.data["password"])
 
         serializer = UserSerializer(data=request.data, partial=True)
+=======
+    def post(self, request):
+        request.data["password"] = make_password(request.data["password"])
+        serializer = UserSerializer(data=request.data)
+>>>>>>> backend
 
         if serializer.is_valid():
             serializer.save()
@@ -340,6 +403,7 @@ class RegistrationView(APIView):
         return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
+<<<<<<< HEAD
     permission_classes = (AllowAny, )
     def post(self, request):
         email = request.data.get("email")
@@ -392,3 +456,23 @@ class LogoutView(APIView):
                 "success": False,
                 "message": "Invalid token or token has been blacklisted!"
             }, status=status.HTTP_400_BAD_REQUEST)
+=======
+    def post(self, request, format=None):
+        email = request.data["email"]
+        password = request.data["password"]
+        hashed_password = make_password(password=password, salt=SALT)
+        user = User.objects.get(email=email)
+        if user is None or user.password != hashed_password:
+            return Response(
+                {
+                    "success": False,
+                    "message": "Invalid Login Credentials!",
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"success": True, "message": "You are now logged in!"},
+                status=status.HTTP_200_OK,
+            )
+>>>>>>> backend
