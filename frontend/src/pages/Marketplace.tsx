@@ -16,21 +16,21 @@ export default function Marketplace() {
   const [filter, setFilter] = useState('');
   const [listings, setListings] = useState<Listing[]>([])
 
-  const fetchListings = () => {
-    api.post(route, )
-        .then(response => {
-            console.log(response)
-            setListings(response.data)
-        })
-        .catch(error => {
-            console.error("Error fetching listings:", error)
-        })
-  }
+  // const fetchListings = () => {
+  //   api.post(route, )
+  //       .then(response => {
+  //           console.log(response)
+  //           setListings(response.data)
+  //       })
+  //       .catch(error => {
+  //           console.error("Error fetching listings:", error)
+  //       })
+  // }
 
   // replace array with listings var
-  useEffect(() => {
-    fetchListings()
-  }, []);
+  // useEffect(() => {
+  //   fetchListings()
+  // }, []);
 
   return (
     <div className="flex flex-col items-center min-h-screen p-8">
