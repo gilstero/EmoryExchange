@@ -298,8 +298,9 @@ class ResetPasswordView(APIView):
         return Response({"success": True, "message": "Your password has been reset successfully!"}, status=status.HTTP_200_OK)
 
 class RegistrationView(APIView):
-
+    permission_classes = (AllowAny, )
     def post(self, request):
+       
         required_fields = ["email", "password"]
 
         # Check if required fields are present

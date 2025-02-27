@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'
+import api from '../api';
 
 interface Listing {
   LID: number;
@@ -17,7 +17,7 @@ export default function Marketplace() {
   const [listings, setListings] = useState<Listing[]>([])
 
   const fetchListings = () => {
-    axios.get("http://127.0.0.1:8000/listing/")
+    api.post(route, )
         .then(response => {
             console.log(response)
             setListings(response.data)

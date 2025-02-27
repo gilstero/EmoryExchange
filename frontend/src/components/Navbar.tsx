@@ -12,8 +12,8 @@ export default function Navbar() {
 
             <div className="flex items-center sm:justify-evenly align-middle gap-4 font-semibold">
                 <Link to="/login" className="cursor-pointer text-lg">Log in</Link>
-                <Link to="/signup" className="bg-[#0c2b9c] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg">
-                    Sign up
+                <Link to="/register" className="bg-[#0c2b9c] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg">
+                    Register
                 </Link>
             </div>
         </header>

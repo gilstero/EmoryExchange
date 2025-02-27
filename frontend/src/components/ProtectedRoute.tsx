@@ -18,10 +18,16 @@ export default function ProtectedRoute({children}: ProtectedRouteProps) {
     const refreshToken = async() => {
         const refreshToken = localStorage.getItem(REFRESH_TOKEN)
 
+        console.log(refreshToken)
+
         try {
-            const res = await api.post("/api/token/refresh/", {refresh: refreshToken})
+            const res = await api.post(
+                "/api/token/refresh/", 
+                { refresh: refreshToken }, 
+                { headers: { 'Content-Type': 'application/json' }}
+            )
             if (res.status === 200) {
-                localStorage.setItem(ACCESS_TOKEN, res.data.access)
+                localStorage.setItem(ACCESS_TOKEN, res.data.access_token)
                 setIsAuthorized(true)
             }
             else {
@@ -29,7 +35,10 @@ export default function ProtectedRoute({children}: ProtectedRouteProps) {
             }
         } catch (error) {
             console.log(error)
+            localStorage.removeItem(ACCESS_TOKEN)
+            localStorage.removeItem(REFRESH_TOKEN)
             setIsAuthorized(false)
+            throw error
         }
     }
 
@@ -39,20 +48,25 @@ export default function ProtectedRoute({children}: ProtectedRouteProps) {
             setIsAuthorized(false)
             return
         }
-        const decoded = jwtDecode(token)
-        const tokenExpiration = decoded.exp
-        const now = Date.now()
-
-        if (!tokenExpiration) {
+        
+        try {
+            const decoded = jwtDecode(token)
+            const tokenExpiration = decoded.exp
+            const currentTimeInSeconds = Math.floor(Date.now() / 1000)  // Convert milliseconds to seconds
+    
+            if (!tokenExpiration) {
+                setIsAuthorized(false)
+                return
+            }
+    
+            if (tokenExpiration < currentTimeInSeconds) {
+                await refreshToken()
+            } else {
+                setIsAuthorized(true)
+            }
+        } catch (error) {
+            console.error("Error decoding token:", error)
             setIsAuthorized(false)
-            return
-        }
-
-        if (tokenExpiration < now) {
-            await refreshToken()
-        }
-        else {
-            setIsAuthorized(true)
         }
     }
 

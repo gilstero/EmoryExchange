@@ -5,8 +5,15 @@ import Description from './components/Description'
 import Footer from './components/Footer'
 import { Routes, Route } from 'react-router'
 import Login from './pages/Login'
-import Signup from './pages/Signup'
+import Register from './pages/Register'
 import Marketplace from './pages/Marketplace'
+import ProtectedRoute from './components/ProtectedRoute'
+import NotFound from './pages/NotFound'
+
+function RegisterAndLogout() {
+  localStorage.clear()
+  return <Register />
+}
 
 function App() {
 
@@ -22,8 +29,16 @@ function App() {
             </>
           } />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/marketplace" element={<Marketplace />} /> {/* New Route */}
+        <Route path="/register" element={<RegisterAndLogout />} />
+        <Route 
+          path="/marketplace" 
+          element={
+            <ProtectedRoute>
+              <Marketplace />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   )

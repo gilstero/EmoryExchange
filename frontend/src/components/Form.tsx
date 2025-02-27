@@ -9,7 +9,7 @@ interface FormProps {
   }
 
 function Form({route, method}: FormProps) {
-    const [username, setUsername] = useState("")
+    const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
@@ -18,12 +18,16 @@ function Form({route, method}: FormProps) {
         setLoading(true)
         e.preventDefault()
 
+        console.log(route)
+        console.log(method)
+
         try {
-            const res = await api.post(route, {username, password})
+            const res = await api.post(route, {email, password})
+            console.log("Response: ", res)
             if (method === "login") {
-                localStorage.setItem(ACCESS_TOKEN, res.data.access)
-                localStorage.setItem(REFRESH_TOKEN, res.data.refresh)
-                navigate("/")
+                localStorage.setItem(ACCESS_TOKEN, res.data.access_token)
+                localStorage.setItem(REFRESH_TOKEN, res.data.refresh_token)
+                navigate("/marketplace")
             } else {
                 navigate("/login")
             }
@@ -38,16 +42,16 @@ function Form({route, method}: FormProps) {
     const title = method === "login" ? "Login" : "Register"
 
     return (
-        <form onSubmit={handleSubmit} className="min-h-screen flex flex-col items-center justify-center p-4">
+        <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center p-4 mt-8">
             <h1 className="text-2xl font-bold mb-6">{title}</h1>
 
             <div className="w-full max-w-xs space-y-4">
                 <input
                     className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Username"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email (@emory.edu)"
                 />
                 <input
                     className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -58,7 +62,7 @@ function Form({route, method}: FormProps) {
                 />
 
                 {loading ? (
-                    <div className="flex justify-center items-center p-2 bg-blue-500 text-white rounded-lg">Loading...</div>
+                    <div className="flex justify-center items-center p-2 bg-[#0c2b9c] text-white rounded-lg">Loading...</div>
                 ) : (
                     <button
                         className="w-full p-3 bg-[#0c2b9c] text-white font-semibold rounded-lg shadow-md"
@@ -77,6 +81,7 @@ function Form({route, method}: FormProps) {
                 )}
             </div>
         </form>
+
     )
 }
 
