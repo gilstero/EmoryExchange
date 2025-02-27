@@ -1,9 +1,8 @@
 # imports for views.py
-from django.http import HttpResponse
 from django.utils import timezone
-from django.template import loader
 from django.shortcuts import render
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password # password and reset functionality
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -15,9 +14,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from . models import *
 from . serializer import *
-from datetime import datetime, timedelta
-import hashlib
-import uuid
 import os
 
 class UserView(APIView):
@@ -39,22 +35,23 @@ class UserView(APIView):
             serializer.save()
             return Response(serializer.data)
 
-    def patch(self, request, user_id):
-        try:
-            user = User.objects.get(user_id=user_id)
-        except:
-            return Response({"error": "User not found"}, status=404)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        user = request.user
         
+        if not user:
+            return Response({"error": "User not found from token"}, status=404)
+
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
 
-    def delete(self, request, user_id):
-        try:
-            user = User.objects.get(user_id=user_id)
-        except:
-            return Response({"error": "User not found"}, status=404)
+    def delete(self, request):
+        user = request.user
+        if not user:
+            return Response({"error": "User not found from token"}, status=404)
         
         user.delete()
         return Response({"message": "User deleted successfully"}, status=204)
@@ -81,7 +78,7 @@ class TransactionView(APIView):
         
     def patch(self, request, user_id_1, user_id_2, date):
         try:
-            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+            transaction = Transaction.objects.get(id_1=user_id_1, id_2=user_id_2, date=date)
         except:
             return Response({"error": "Transaction not found"}, status=404)
 
@@ -92,7 +89,7 @@ class TransactionView(APIView):
         
     def delete(self, request, user_id_1, user_id_2, date):
         try:
-            transaction = Transaction.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+            transaction = Transaction.objects.get(id_1=user_id_1, id_2=user_id_2, date=date)
         except:
             return Response({"error": "Transaction not found"}, status=404)
         
@@ -184,22 +181,24 @@ class ListingView(APIView):
             serializer.save()
             return Response(serializer.data)
         
-    def patch(self, request, listingID):
+    def patch(self, request):
+        user = request.user
         try:
-            listing = Listing.objects.get(LID=listingID)
-        except:
-            return Response({"error": "Listing not found"}, status=404)
+            listing = Listing.objects.get(LID=request.data.get('LID'), id=user.id)
+        except Listing.DoesNotExist:
+            return Response({"error": "Listing not found or unauthorized"}, status=404)
         
-        serializer = ListingSerializer(listing, data=request.data)
+        serializer = ListingSerializer(listing, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
 
-    def delete(self, request, listingID):
+    def delete(self, request):
+        user = request.user
         try:
-            listing = Listing.objects.get(LID=listingID)
-        except:
-            return Response({"error": "Listing not found"}, status=404)
+            listing = Listing.objects.get(LID=request.data.get('LID'), id=user.id)
+        except Listing.DoesNotExist:
+            return Response({"error": "Listing not found or unauthorized"}, status=404)
 
         listing.delete()
         return Response({"message": "Listing deleted successfully"}, status=204)
@@ -299,9 +298,37 @@ class ResetPasswordView(APIView):
         return Response({"success": True, "message": "Your password has been reset successfully!"}, status=status.HTTP_200_OK)
 
 class RegistrationView(APIView):
+
     def post(self, request):
+        required_fields = ["email", "password"]
+
+        # Check if required fields are present
+        for field in required_fields:
+            if field not in request.data:
+                return Response({"success": False, "message": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Email validation for emory.edu
+        email = request.data.get("email")
+        if not email.endswith('@emory.edu'):
+            return Response(
+                {"success": False, "message": "Please use a valid @emory.edu email address."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        password = request.data.get("password")
+
+        if 6 >= len(password):
+            return Response(
+                {"sucess": False, "message": "Invalid password length (Too Short)"}
+            )
+        if len(password) >= 18:
+            return Response(
+                {"sucess": False, "message": "Invalid password length (Too Long)"}
+            )
+
         request.data["password"] = make_password(request.data["password"])
-        serializer = UserSerializer(data=request.data)
+
+        serializer = UserSerializer(data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -313,21 +340,55 @@ class RegistrationView(APIView):
         return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
-    def post(self, request, format=None):
-        email = request.data["email"]
-        password = request.data["password"]
-        hashed_password = make_password(password=password, salt=SALT)
-        user = User.objects.get(email=email)
-        if user is None or user.password != hashed_password:
+    permission_classes = (AllowAny, )
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        # Authenticate user
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
             return Response(
-                {
-                    "success": False,
-                    "message": "Invalid Login Credentials!",
-                },
-                status=status.HTTP_200_OK,
+                {"success": False, "message": "Invalid login credentials!"},
+                status=status.HTTP_400_BAD_REQUEST
             )
-        else:
+
+        if not check_password(password, user.password):
             return Response(
-                {"success": True, "message": "You are now logged in!"},
-                status=status.HTTP_200_OK,
+                {"success": False, "message": "Invalid login credentials!"},
+                status=status.HTTP_400_BAD_REQUEST
             )
+
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        user_serializer = UserSerializer(user)
+
+        return Response({
+            "success": True,
+            "message": "You are now logged in!",
+            "user": user_serializer.data,
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh)
+        }, status=status.HTTP_200_OK)
+
+class LogoutView(APIView):
+    
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+            print(refresh_token)
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            
+            return Response({
+                "success": True,
+                "message": "You have been successfully logged out!"
+            }, status=status.HTTP_200_OK)
+
+        
+        except Exception as e:
+            return Response({
+                "success": False,
+                "message": "Invalid token or token has been blacklisted!"
+            }, status=status.HTTP_400_BAD_REQUEST)
