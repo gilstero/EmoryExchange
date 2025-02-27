@@ -5,14 +5,20 @@ from . models import *
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['user_id', 'profile_name', 'real_name', 'email', 
+        fields = ['id', 'profile_name', 'real_name', 'email', 
                   'phone_num', 'password', 'propic']
+        extra_kwargs = {
+            "profile_name": {"required": False},
+            "real_name": {"required": False},
+            "phone_num": {"required": False},
+            "propic": {"required": False},
+        }
 
 # Transaction Database Serializer
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = ['user_id_1', 'user_id_2', 'amount', 'date', 
+        fields = ['id_1', 'id_2', 'amount', 'date', 
                   'user1_rating', 'user2_rating', 'user1_notes', 'user2_notes']
 
 class RideSerializer(serializers.ModelSerializer):
@@ -31,6 +37,4 @@ class MessageSerializer(serializers.ModelSerializer):
 class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
-        fields = ['LID', 'user', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']
-
-
+        fields = ['LID', 'id', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']

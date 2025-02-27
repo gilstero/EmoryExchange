@@ -1,0 +1,6 @@
+{
+    "success": true,
+    "message": "You are now logged in!",
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQwNjA3MTEwLCJpYXQiOjE3NDA1MjA3MTAsImp0aSI6IjNiZWIwNjQ2YjYxYzRhODA5NzQ4NTljZjc2NWMyYTZhIiwidXNlcl9pZCI6OH0.ZIm14XTQHso_6QkKRzcqSGqy8SNILMXcAcKxiq_IbAA",
+    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc0MDYwNzExMCwiaWF0IjoxNzQwNTIwNzEwLCJqdGkiOiJlMGRiY2IzNmM1YjU0OTI1OTRkNWZiYmQ0OGI1M2IyMCIsInVzZXJfaWQiOjh9.sRhG37QPOQhQMC1L4_oYVYlvz4ggpMkFbXoySzrkZj4"
+}

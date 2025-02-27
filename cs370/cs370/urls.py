@@ -19,13 +19,43 @@ from django.contrib import admin
 from django.urls import include, path
 # from django.conf.urls import url
 from members.views import *
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
+    # This is the basic control page with the buttons to the endpoints for navigation
     path('', control_page, name="control page"),
     path('admin/', admin.site.urls),
-    path('user/', UserView.as_view(), name="user"),
-    path('transaction/', TransactionView.as_view(), name="transaction"),
-    path('ride/', RideView.as_view(), name="ride"),
-    path('message/', MessageView.as_view(), name="message"),
-    path('listing/', ListingView.as_view(), name="listing")
+
+    #user API url
+    path('api/auth/user/', UserView.as_view(), name="user"),
+
+    #transaction API url
+    path('api/auth/transaction/', TransactionView.as_view(), name="transaction"),
+    path('api/auth/transaction/<int:user_id_1>/<int:user_id_2>/<str:date>/', TransactionView.as_view()),
+
+    path('api/auth/ride/', RideView.as_view(), name="ride"),
+
+    #message API url
+    path('api/auth/message/', MessageView.as_view(), name="message"),
+    path('api/auth/message/<int:user_id_1>/<int:user_id_2>/<str:date>/', MessageView.as_view()),
+
+    #listing API url
+    path('api/auth/listing/', ListingView.as_view(), name="listing"), 
+    path('api/auth/listing/<int:listingID>/', ListingView.as_view()),
+
+    path("api/auth/register/", RegistrationView.as_view(), name="register"),
+
+    path("api/auth/login/", LoginView.as_view(), name="login"),
+
+    path("api/auth/logout/", LogoutView.as_view(), name="logout"),
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # unimplemented
+    path("forgotPassword/", ForgotPasswordView.as_view(), name="forgotPassword"),
+    path("resetPassword/", ResetPasswordView.as_view(), name="resetPassword"),
 ]
