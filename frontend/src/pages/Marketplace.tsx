@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api';
+import MarketPlaceNav from '../components/MarketPlaceNav';
 
 interface Listing {
   LID: number;
@@ -16,23 +17,24 @@ export default function Marketplace() {
   const [filter, setFilter] = useState('');
   const [listings, setListings] = useState<Listing[]>([])
 
-  // const fetchListings = () => {
-  //   api.post(route, )
-  //       .then(response => {
-  //           console.log(response)
-  //           setListings(response.data)
-  //       })
-  //       .catch(error => {
-  //           console.error("Error fetching listings:", error)
-  //       })
-  // }
+  const fetchListings = () => {
+    api.get('/api/auth/listing/')
+        .then(response => {
+            console.log(response)
+            setListings(response.data)
+        })
+        .catch(error => {
+            console.error("Error fetching listings:", error)
+        })
+  }
 
-  // replace array with listings var
-  // useEffect(() => {
-  //   fetchListings()
-  // }, []);
+  useEffect(() => {
+    fetchListings()
+  }, []);
 
   return (
+    <>
+    <MarketPlaceNav />
     <div className="flex flex-col items-center min-h-screen p-8">
       {/* Search and Filter Section */}
       <div className="w-full max-w-3xl bg-white shadow-md p-4 rounded-lg flex flex-col sm:flex-row items-center gap-4 mb-8">
@@ -89,5 +91,6 @@ export default function Marketplace() {
           </div>
         </div>
     </div>
-  );
+    </>
+  )
 }
