@@ -44,7 +44,7 @@ export default function Profile() {
             setUser(response.data)
         })
         .catch(error => {
-            console.error("Error fetching listings:", error)
+            console.error("Error fetching user:", error)
         })
   }
 
