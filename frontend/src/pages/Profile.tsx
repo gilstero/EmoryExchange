@@ -108,46 +108,6 @@ export default function Profile() {
           </div>
         </div>
       </div>
-    {/* <div className="flex items-center min-h-screen p-8">
-      <div>
-        <img src={pfp} className="w-50 h-50 mt-3 mb-10 mx-auto rounded-full" />
-        <div className="p-2">
-          <p className="text-sm font-bold mb-2 text-[black]">{user.real_name}</p>
-          <p className="text-sm font-bold mb-2 text-[black]">{user.email}</p>
-          <p className="text-sm font-bold mb-2 text-[black]">{user.phone_num}</p>
-        </div>
-      </div>
-
-      <div>
-        <h1 className="text-4xl font-bold text-[#0c2b9c] mb-6 ml-4">Manage Profile</h1>
-        <p className="text-lg text-gray-700 max-w-2xl ml-4">
-            View your listings
-        </p>
-        <div className="mt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-                {listings.map((listing) => (
-                <div
-                    key={listing.id}
-                    className="bg-white shadow-md rounded-lg p-6 flex flex-col items-start"
-                >
-                    <h3 className="text-xl font-bold text-[#0c2b9c] mb-2 text-center w-full">
-                    {listing.title}
-                    </h3>
-                    <p className="text-gray-700 mb-2">{listing.description}</p>
-                    <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm">
-                    {listing.tag}
-                    </span>
-                    <p className="mt-2 font-semibold">Amount: ${listing.amount}</p>
-                    <p className={`mt-1 ${listing.status === "live" ? "text-green-600" : "text-red-600"}`}>
-                    Status: {listing.status}
-                    </p>
-                    <p className="mt-2 font-semibold">{new Date(listing.ldate).toLocaleDateString()}</p>
-                </div>
-                ))}
-            </div>
-            </div>
-        </div>
-    </div> */}
     </>
   )
 }
