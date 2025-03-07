@@ -5,12 +5,14 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password # password and reset functionality
 from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from . models import *
 from . serializer import *
@@ -203,6 +205,28 @@ class ListingView(APIView):
         listing.delete()
         return Response({"message": "Listing deleted successfully"}, status=204)
 
+class ListingViewPublic(APIView):
+    permission_classes = (AllowAny, )
+    def get(self, request):
+        tag = request.query_params.get('tag', None)
+        if tag is None:
+            return Response(
+                {"detail": "Tag parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # below checks if the json tag provided is a correct tag
+        valid_tags = [choice[0] for choice in Listing.TAG_CHOICES]
+        if tag not in valid_tags:
+            return Response(
+                {"detail": "Invalid tag."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        listings = Listing.objects.filter(tag=tag, status='live')
+        serializer = ListingSerializer(listings, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 def control_page(request):
     return render(request, "home.html")
 
@@ -213,92 +237,108 @@ def control_page(request):
 URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 SALT = "8b4f6b2cc1868d75ef79e5cfb8779c11b6a374bf0fce05b485581bf4e1e25b96c8c2855015de8449"
 
-def mail_template(content, button_url, button_text):
-    return f"""<!DOCTYPE html>
-            <html>
-            <body style="text-align: center; font-family: "Verdana", serif; color: #000;">
-                <div style="max-width: 600px; margin: 10px; background-color: #fafafa; padding: 25px; border-radius: 20px;">
-                <p style="text-align: left;">{content}</p>
-                <a href="{button_url}" target="_blank">
-                    <button style="background-color: #444394; border: 0; width: 200px; height: 30px; border-radius: 6px; color: #fff;">{button_text}</button>
-                </a>
-                <p style="text-align: left;">
-                    If you are unable to click the above button, copy paste the below URL into your address bar
-                </p>
-                <a href="{button_url}" target="_blank">
-                    <p style="margin: 0px; text-align: left; font-size: 10px; text-decoration: none;">{button_url}</p>
-                </a>
-                </div>
-            </body>
-            </html>"""
-
+'''
+Forgot password view is currently not working
+'''
 class ForgotPasswordView(APIView):
+    permission_classes = (AllowAny, )
+    
     def post(self, request):
         email = request.data.get("email")
-        user = User.objects.filter(email=email).first()
-
-        if not user:
-            return Response({"success": False, "message": "User not found!"}, status=status.HTTP_400_BAD_REQUEST)
-
-        created_at = timezone.now()
-        expires_at = created_at + timezone.timedelta(days=1)
-
-        # Secure token generation
-        token = default_token_generator.make_token(user)
-
-        token_obj = Token(user_id=user.id, token=token, created_at=created_at, expires_at=expires_at)
-        token_obj.save()
-
-        subject = "Forgot Password Link"
-        button_url = f"{URL}/resetPassword?id={user.id}&token={token}"
-        content = mail_template(
-            "We have received a request to reset your password. Please use the link below.",
-            button_url,
-            "Reset Password",
-        )
-
-        send_mail(
-            subject=subject,
-            message=content,
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[email],
-            html_message=content,
+        
+        if not email:
+            return Response(
+                {"success": False, "message": "Email is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
             )
-
+            
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"success": True, "message": "If your email exists in our system, you will receive a password reset link"}, 
+                status=status.HTTP_200_OK
+            )
+            
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        
+        '''
+        This will need to be edited to work with the front end url
+        '''
+        reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}"
+        
+        subject = "Reset your password"
+        message = f"Click the link below to reset your password:\n\n{reset_url}\n\nThis link will expire in 24 hours."
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "message": "Failed to send email. Please try again later."}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
         return Response(
-            {"success": True, "message": "A password reset link has been sent to your email."},
-            status=status.HTTP_200_OK,
+            {"success": True, "message": "If your email exists in our system, you will receive a password reset link"}, 
+            status=status.HTTP_200_OK
         )
 
 class ResetPasswordView(APIView):
+    permission_classes = (AllowAny, )
     def post(self, request):
-        user_id = request.data.get("id")
+        uid = request.data.get("uid")
         token = request.data.get("token")
         password = request.data.get("password")
-
-        token_obj = Token.objects.filter(user_id=user_id, is_used=False).order_by("-created_at").first()
-
-        if not token_obj or token_obj.expires_at < timezone.now() or token_obj.token != token:
+        
+        if not (uid and token and password):
             return Response(
-                {"success": False, "message": "Invalid or expired reset link!"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"success": False, "message": "UID, token, and password are required"}, 
+                status=status.HTTP_400_BAD_REQUEST
             )
-
-        # Reset Password
-        user = User.objects.filter(id=user_id).first()
-        if not user:
-            return Response({"success": False, "message": "User not found!"}, status=status.HTTP_400_BAD_REQUEST)
-
+            
+        if len(password) < 6:
+            return Response(
+                {"success": False, "message": "Invalid password length (Too Short)"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if len(password) > 18:
+            return Response(
+                {"success": False, "message": "Invalid password length (Too Long)"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response(
+                {"success": False, "message": "Invalid reset link"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        if not default_token_generator.check_token(user, token):
+            return Response(
+                {"success": False, "message": "Invalid or expired reset link"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         user.password = make_password(password)
         user.save()
-
-        token_obj.is_used = True
-        token_obj.save()
-
-        return Response({"success": True, "message": "Your password has been reset successfully!"}, status=status.HTTP_200_OK)
+        
+        return Response(
+            {"success": True, "message": "Password has been reset successfully"}, 
+            status=status.HTTP_200_OK
+        )
 
 class RegistrationView(APIView):
-
+    permission_classes = (AllowAny, )
     def post(self, request):
         required_fields = ["email", "password"]
 
@@ -373,22 +413,32 @@ class LoginView(APIView):
         }, status=status.HTTP_200_OK)
 
 class LogoutView(APIView):
-    
+    permission_classes = (IsAuthenticated,)
     def post(self, request):
         try:
             refresh_token = request.data.get("refresh_token")
-            print(refresh_token)
+            
+            if not refresh_token:
+                return Response(
+                    {"success": False, "message": "Refresh token is required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
             token = RefreshToken(refresh_token)
             token.blacklist()
             
-            return Response({
-                "success": True,
-                "message": "You have been successfully logged out!"
-            }, status=status.HTTP_200_OK)
-
-        
+            return Response(
+                {"success": True, "message": "You have been successfully logged out"},
+                status=status.HTTP_200_OK
+            )
+            
+        except TokenError:
+            return Response(
+                {"success": False, "message": "Invalid or expired token"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
-            return Response({
-                "success": False,
-                "message": "Invalid token or token has been blacklisted!"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"success": False, "message": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
