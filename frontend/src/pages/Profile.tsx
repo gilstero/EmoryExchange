@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import api from '../api';
+import { Link } from 'react-router';
 import MarketPlaceNav from '../components/MarketPlaceNav';
 
 interface Listing {
@@ -73,7 +74,7 @@ export default function Profile() {
     <MarketPlaceNav />
     <div className="flex min-h-screen bg-[#efefee]">
         {/* Sidebar */}
-        <div className="w-1/4 bg-white p-6 shadow-md rounded-lg mt-6 mx-4 flex flex-col gap-4 items-center h-full">
+        <div className="w-1/4 bg-white p-6 shadow-md rounded-lg mt-6 mx-4 flex flex-col gap-4 items-center h-full mb-4">
           <img src={pfp} alt="Profile Picture" className="w-50 h-50 rounded-full mt-6 mb-6" />
           <p className="text-xl font-bold text-[#0c2b9c]">{user.real_name}</p>
           <p className="text-sm text-gray-700">{user.email}</p>
@@ -82,9 +83,12 @@ export default function Profile() {
 
         {/* Listings */}
         <div className="w-3/4 p-6 ml-2 flex flex-col">
-          <div className="bg-white p-6 shadow-md rounded-lg mb-4">
-            <h1 className="text-4xl font-bold text-[#0c2b9c] mb-6">Manage Profile</h1>
-            <p className="text-lg text-gray-700 mb-4">View and manage your listings below.</p>
+          <div className="bg-white p-8 shadow-md rounded-lg mb-4 flex justify-between items-center">
+            <div className="flex flex-col">
+              <h1 className="text-4xl font-bold text-[#0c2b9c] mb-6">Manage Profile</h1>
+              <p className="text-lg text-gray-700 mb-4">View and manage your listings below.</p>
+            </div>
+            <Link to="/add-listing" className="p-4 bg-[#0c2b9c] text-white rounded-xl cursor-pointer font-bold">Add New Listing</Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

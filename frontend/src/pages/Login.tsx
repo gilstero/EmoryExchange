@@ -8,7 +8,7 @@ export default function Login() {
 
   return (
     <>
-      <nav className="p-8 top-0 z-[100] border-b-blue-700 bg-[#edecdf]">
+      <nav className="p-8 top-0 z-[100] bg-[#efefee] shadow-md">
         <header className="md:px-6 prose prose-xl mx-auto flex justify-between flex-row text-[#0c2b9c]">
             <Link className="text-4xl font-bold grid place-content-center mb-2 md:mb-0 font-(family-name:Jockey-One) cursor-pointer" to="/">
                 <h1>Eagle Exchange</h1>

@@ -12,7 +12,7 @@ export default function Main() {
         {/* <Link to="/signup" className="bg-white text-[#0c2b9c] px-6 py-4 rounded-lg cursor-pointer font-bold text-base sm:text-xl">
           Get Started
         </Link> */}
-        <Link to="/marketplace" className="bg-white text-[#0c2b9c] px-6 py-4 rounded-lg cursor-pointer font-bold text-base sm:text-xl mt-4">
+        <Link to="/marketplace" className="bg-white text-[#0c2b9c] px-6 py-4 rounded-lg cursor-pointer font-bold text-base sm:text-xl mt-4" aria-label="Marketplace">
           Browse Marketplace
         </Link>
       </div>

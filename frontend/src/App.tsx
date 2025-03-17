@@ -10,6 +10,7 @@ import Marketplace from './pages/Marketplace'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFound from './pages/NotFound'
 import Profile from './pages/Profile'
+import AddListing from './pages/AddListing'
 
 function RegisterAndLogout() {
   localStorage.clear()
@@ -44,6 +45,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/add-listing" 
+          element={
+            <ProtectedRoute>
+              <AddListing />
             </ProtectedRoute>
           }
         />
