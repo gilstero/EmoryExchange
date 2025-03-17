@@ -15,7 +15,7 @@ class TransactionAdmin(admin.ModelAdmin):
     list_filter = ('date', 'user1_rating', 'user2_rating')
 
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ('LID', 'id', 'amount', 'ldate', 'status', 'title')
+    list_display = ('id', 'user', 'amount', 'ldate', 'status', 'title')
     search_fields = ('title', 'user__profile_name')
     list_filter = ('status', 'tag', 'ldate')
 

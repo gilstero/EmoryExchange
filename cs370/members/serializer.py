@@ -37,6 +37,6 @@ class MessageSerializer(serializers.ModelSerializer):
 class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
-        fields = ['LID', 'id', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']
+        fields = ['id', 'user', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']
 
 

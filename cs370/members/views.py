@@ -161,10 +161,10 @@ class ListingView(APIView):
     def get(self, request):
         output = []
         for listing in Listing.objects.all():
-            user_serializer = UserSerializer(listing.id)  # Serialize the user associated with the listing
+            user_serializer = UserSerializer(listing.user)
             
             output.append({
-                "LID": listing.LID,
+                "id": listing.id, 
                 "user": user_serializer.data,
                 "amount": listing.amount,
                 "ldate": listing.ldate,
@@ -178,7 +178,9 @@ class ListingView(APIView):
         return Response(output)
     
     def post(self, request):
-        serializer = ListingSerializer(data=request.data)
+        data = request.data.copy()
+        data['user'] = request.user.id
+        serializer = ListingSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
@@ -186,7 +188,7 @@ class ListingView(APIView):
     def patch(self, request):
         user = request.user
         try:
-            listing = Listing.objects.get(LID=request.data.get('LID'), id=user.id)
+            listing = Listing.objects.get(id=request.data.get('id'), user=user.id)
         except Listing.DoesNotExist:
             return Response({"error": "Listing not found or unauthorized"}, status=404)
         
@@ -198,7 +200,7 @@ class ListingView(APIView):
     def delete(self, request):
         user = request.user
         try:
-            listing = Listing.objects.get(LID=request.data.get('LID'), id=user.id)
+            listing = Listing.objects.get(id=request.data.get('id'), user=user.id)
         except Listing.DoesNotExist:
             return Response({"error": "Listing not found or unauthorized"}, status=404)
 
