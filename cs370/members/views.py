@@ -159,10 +159,10 @@ class ListingView(APIView):
     def get(self, request):
         output = []
         for listing in Listing.objects.all():
-            user_serializer = UserSerializer(listing.id)  # Serialize the user associated with the listing
+            user_serializer = UserSerializer(listing.user)  # Serialize the user associated with the listing
             
             output.append({
-                "LID": listing.LID,
+                "id": listing.id,
                 "user": user_serializer.data,
                 "amount": listing.amount,
                 "ldate": listing.ldate,

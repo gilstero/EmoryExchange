@@ -35,8 +35,9 @@ class MessageSerializer(serializers.ModelSerializer):
 
 # Listing Database Serializer
 class ListingSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = Listing
-        fields = ['LID', 'user', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']
+        fields = ['id', 'user', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']
 
 
