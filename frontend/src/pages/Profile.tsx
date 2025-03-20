@@ -43,6 +43,7 @@ export default function Profile() {
         .then(response => {
             console.log("user", response)
             setUser(response.data)
+            console.log(user)
         })
         .catch(error => {
             console.error("Error fetching user:", error)
@@ -78,7 +79,7 @@ export default function Profile() {
           <img src={pfp} alt="Profile Picture" className="w-50 h-50 rounded-full mt-6 mb-6" />
           <p className="text-xl font-bold text-[#0c2b9c]">{user.real_name}</p>
           <p className="text-sm text-gray-700">{user.email}</p>
-          <p className="text-sm text-gray-700 mb-6">{user.phone_num}</p>
+          <p className="text-sm text-gray-700 mb-6">{`(${user.phone_num.slice(0, 3)}) ${user.phone_num.slice(3, 6)}-${user.phone_num.slice(6, 10)}`}</p>
         </div>
 
         {/* Listings */}

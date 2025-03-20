@@ -1,15 +1,18 @@
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useState } from "react"
 import api from "../api"
-import { useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+import { useNavigate } from "react-router-dom"
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants"
 
 interface FormProps {
     route: string;
-    method: "login" | "register";
+    method: "login" | "register"
   }
 
 function Form({route, method}: FormProps) {
+    const [username, setUsername] = useState("")
+    const [fullname, setFullname] = useState("")
     const [email, setEmail] = useState("")
+    const [phone, setPhone] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
@@ -21,22 +24,46 @@ function Form({route, method}: FormProps) {
         console.log(route)
         console.log(method)
 
-        try {
-            const res = await api.post(route, {email, password})
-            console.log("Response: ", res)
-            if (method === "login") {
+        if (method === "login") {
+            try {
+                const res = await api.post(route, {email, password})
+                console.log("Response: ", res)
                 localStorage.setItem(ACCESS_TOKEN, res.data.access_token)
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh_token)
                 navigate("/marketplace")
-            } else {
-                navigate("/login")
+
+            } catch (error) {
+                alert(error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        else if (method === "register") {
+            if (phone.length !== 10) {
+                alert("Phone number must be exactly 10 digits")
+                return
             }
 
-        } catch (error) {
-            alert(error)
-        } finally {
-            setLoading(false)
+            try {
+                const res = await api.post(route, {
+                    real_name: fullname,
+                    profile_name: username,
+                    email: email,
+                    password: password,
+                    phone_num: phone
+                })
+                console.log("Response: ", res)
+                navigate("/login")
+    
+            } catch (error) {
+                alert(error)
+            } finally {
+                setLoading(false)
+            }
         }
+
+        
     }
 
     const title = method === "login" ? "Login" : "Register"
@@ -46,6 +73,37 @@ function Form({route, method}: FormProps) {
             <h1 className="text-2xl font-bold mb-6">{title}</h1>
 
             <div className="w-full max-w-xs space-y-4">
+                {method === "register" && 
+                    <input
+                        className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        type="text"
+                        value={fullname}
+                        onChange={(e) => setFullname(e.target.value)}
+                        placeholder="Full Name"
+                    />
+                }
+                {method === "register" && 
+                    <input
+                        className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Username"
+                    />
+                }
+                {method === "register" && 
+                    <input
+                        className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => {
+                            let cleaned = e.target.value.replace(/\D/g, "")
+                            if (cleaned.length > 10) return
+                            setPhone(cleaned)
+                        }}
+                        placeholder="Phone Number"
+                    />
+                }
                 <input
                     className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     type="email"
