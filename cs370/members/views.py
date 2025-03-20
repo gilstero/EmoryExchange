@@ -159,10 +159,10 @@ class ListingView(APIView):
     def get(self, request):
         output = []
         for listing in Listing.objects.all():
-            user_serializer = UserSerializer(listing.user)  # Serialize the user associated with the listing
+            user_serializer = UserSerializer(listing.user)
             
             output.append({
-                "id": listing.id,
+                "id": listing.id, 
                 "user": user_serializer.data,
                 "amount": listing.amount,
                 "ldate": listing.ldate,
@@ -176,7 +176,9 @@ class ListingView(APIView):
         return Response(output)
     
     def post(self, request):
-        serializer = ListingSerializer(data=request.data)
+        data = request.data.copy()
+        data['user'] = request.user.id
+        serializer = ListingSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
@@ -184,7 +186,7 @@ class ListingView(APIView):
     def patch(self, request):
         user = request.user
         try:
-            listing = Listing.objects.get(LID=request.data.get('LID'), id=user.id)
+            listing = Listing.objects.get(id=request.data.get('id'), user=user.id)
         except Listing.DoesNotExist:
             return Response({"error": "Listing not found or unauthorized"}, status=404)
         
@@ -196,12 +198,34 @@ class ListingView(APIView):
     def delete(self, request):
         user = request.user
         try:
-            listing = Listing.objects.get(LID=request.data.get('LID'), id=user.id)
+            listing = Listing.objects.get(id=request.data.get('id'), user=user.id)
         except Listing.DoesNotExist:
             return Response({"error": "Listing not found or unauthorized"}, status=404)
 
         listing.delete()
         return Response({"message": "Listing deleted successfully"}, status=204)
+
+class ListingViewPublic(APIView):
+    permission_classes = (AllowAny, )
+    def get(self, request):
+        tag = request.query_params.get('tag', None)
+        if tag is None:
+            return Response(
+                {"detail": "Tag parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # below checks if the json tag provided is a correct tag
+        valid_tags = [choice[0] for choice in Listing.TAG_CHOICES]
+        if tag not in valid_tags:
+            return Response(
+                {"detail": "Invalid tag."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        listings = Listing.objects.filter(tag=tag, status='live')
+        serializer = ListingSerializer(listings, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 def control_page(request):
     return render(request, "home.html")
