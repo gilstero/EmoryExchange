@@ -4,7 +4,7 @@ import MarketPlaceNav from '../components/MarketPlaceNav';
 
 interface Listing {
   id: number;
-  user: User
+  user: User;
   title: string;
   description: string;
   tag: string;
@@ -148,7 +148,7 @@ export default function Marketplace() {
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Contact Information</h3>
+                  <h3 className="text-lg font-semibold mb-2"> Seller Information</h3>
                   <div className="flex items-center mb-4">
                     {selectedListing.user.propic ? (
                       <img 

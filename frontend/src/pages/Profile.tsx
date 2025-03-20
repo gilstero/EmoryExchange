@@ -16,6 +16,7 @@ interface Listing {
 
 interface User {
   id: number;
+  // user: User;
   email: string;
   password: string;
   phone_num: string;
@@ -25,8 +26,6 @@ interface User {
 }
 
 export default function Profile() {
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('');
   const [listings, setListings] = useState<Listing[]>([])
   const [user, setUser] = useState<User>({
     id: 0,
@@ -66,6 +65,11 @@ export default function Profile() {
     fetchUser()
   }, []);
 
+  // const filteredListings = listings.filter(listing => {
+  //   const matchUser = listing.user.id === user.id
+  //   return matchUser
+  // })
+
   console.log(user, listings)
 
   const pfp = user.propic || "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg"
@@ -79,7 +83,7 @@ export default function Profile() {
           <img src={pfp} alt="Profile Picture" className="w-50 h-50 rounded-full mt-6 mb-6" />
           <p className="text-xl font-bold text-[#0c2b9c]">{user.real_name}</p>
           <p className="text-sm text-gray-700">{user.email}</p>
-          <p className="text-sm text-gray-700 mb-6">{`(${user.phone_num.slice(0, 3)}) ${user.phone_num.slice(3, 6)}-${user.phone_num.slice(6, 10)}`}</p>
+          <p className="text-sm text-gray-700 mb-6">{user.phone_num}</p>
         </div>
 
         {/* Listings */}

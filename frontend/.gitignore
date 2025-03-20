@@ -25,4 +25,5 @@ dist-ssr
 
 .venv
 .venv/
-db.sqlite3
+*db.sqlite3
+/cs370/db.sqlite3
