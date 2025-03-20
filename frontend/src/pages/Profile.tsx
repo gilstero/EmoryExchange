@@ -15,14 +15,14 @@ interface Listing {
 }
 
 interface User {
-    id: number;
-    email: string;
-    password: string;
-    phone_num: string;
-    profile_name: string;
-    propic: string;
-    real_name: string
-  }
+  id: number;
+  email: string;
+  password: string;
+  phone_num: string;
+  profile_name: string;
+  propic: string;
+  real_name: string
+}
 
 export default function Profile() {
   const [search, setSearch] = useState('');

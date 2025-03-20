@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react'
 import api from '../api';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function AddListing() {
     const [amount, setAmount] = useState<string | number>("")
@@ -60,8 +60,16 @@ export default function AddListing() {
     const showAmountField = tag !== 'free';
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center p-4">
+        <div>
+            <nav className="p-8 sticky top-0 z-[100] border-b-blue-700 bg-[#efefee] shadow-md">
+                <header className="md:px-6 prose prose-xl mx-auto flex justify-between flex-row text-[#0c2b9c]">
+                    <Link className="text-2xl font-bold grid place-content-center mb-2 md:mb-0 font-(family-name:Jockey-One) cursor-pointer" to="/profile" aria-label="Back to Profile">
+                        <h1>← Back</h1>
+                    </Link>
+
+                </header>
+            </nav>
+            <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center px-4 py-8">
                 <h1 className="text-4xl font-bold mb-6">Create a New Listing</h1>
 
                 <div className="w-full max-w-md space-y-4">

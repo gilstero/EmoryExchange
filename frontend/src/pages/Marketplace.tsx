@@ -4,6 +4,7 @@ import MarketPlaceNav from '../components/MarketPlaceNav';
 
 interface Listing {
   id: number;
+  user: User
   title: string;
   description: string;
   tag: string;
@@ -12,10 +13,22 @@ interface Listing {
   ldate: string | Date;
 }
 
+interface User {
+  id: number;
+  email: string;
+  password: string;
+  phone_num: string;
+  profile_name: string;
+  propic: string;
+  real_name: string
+}
+
 export default function Marketplace() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
   const [listings, setListings] = useState<Listing[]>([])
+  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const fetchListings = () => {
     api.get('/api/auth/listing/')
@@ -31,6 +44,16 @@ export default function Marketplace() {
   useEffect(() => {
     fetchListings()
   }, []);
+
+  const handleListingClick = (listing: Listing) => {
+    setSelectedListing(listing)
+    setIsOpen(true)
+  }
+
+  const closeListing = () => {
+    setIsOpen(false)
+    setSelectedListing(null)
+  }
 
   const filteredListings = listings.filter(listing => {
     const matchSearch = listing.title.toLowerCase().includes(search.toLowerCase()) || listing.description.toLowerCase().includes(search.toLowerCase())
@@ -75,7 +98,8 @@ export default function Marketplace() {
               filteredListings.map((listing) => (
               <div
                 key={listing.id}
-                className="bg-white shadow-md rounded-lg p-6 flex flex-col items-start"
+                className="bg-white shadow-md rounded-lg p-6 flex flex-col items-start cursor-pointer"
+                onClick={() => handleListingClick(listing)}
               >
                 <h3 className="text-xl font-bold text-[#0c2b9c] mb-2 text-center w-full">
                   {listing.title}
@@ -94,6 +118,71 @@ export default function Marketplace() {
             ) : <div className="text-center text-xl">No Listings Found</div>}
           </div>
         </div>
+
+        {isOpen && selectedListing && (
+          <div className="fixed inset-0 bg-[rgba(239,239,238,0.8)] flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-screen overflow-y-auto">
+              <div className="flex justify-between items-start">
+                <h2 className="text-2xl font-bold text-[#0c2b9c]">{selectedListing.title}</h2>
+                <button 
+                  onClick={closeListing} 
+                  className="text-gray-500 hover:text-gray-700 text-3xl cursor-pointer"
+                >
+                  &times;
+                </button>
+              </div>
+              
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Listing Details</h3>
+                  <p className="mb-2"><span className="font-medium">Description:</span> {selectedListing.description}</p>
+                  <p className="mb-2"><span className="font-medium">Category:</span> <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm">{selectedListing.tag}</span></p>
+                  <p className="mb-2"><span className="font-medium">Amount:</span> ${selectedListing.amount}</p>
+                  <p className="mb-2">
+                    <span className="font-medium">Status:</span> 
+                    <span className={`ml-1 px-2 py-1 rounded-full text-sm ${selectedListing.status === "live" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}>
+                      {selectedListing.status}
+                    </span>
+                  </p>
+                  <p className="mb-2"><span className="font-medium">Date Posted:</span> {new Date(selectedListing.ldate).toLocaleDateString()}</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Contact Information</h3>
+                  <div className="flex items-center mb-4">
+                    {selectedListing.user.propic ? (
+                      <img 
+                        src={selectedListing.user.propic} 
+                        alt={selectedListing.user.profile_name} 
+                        className="w-16 h-16 rounded-full object-cover mr-4"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                        <span className="text-[8px] text-gray-500">{selectedListing.user.profile_name}</span>
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-semibold text-lg">{selectedListing.user.profile_name}</p>
+                      <p className="text-gray-600">{selectedListing.user.real_name}</p>
+                    </div>
+                  </div>
+                  <p className="mb-2"><span className="font-medium">Email:</span> {selectedListing.user.email}</p>
+                  <p className="mb-2"><span className="font-medium">Phone:</span> {selectedListing.user.phone_num}</p>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-end">
+                <a
+                  href={`mailto:${selectedListing.user.email}`}
+                  className="bg-[#0c2b9c] hover:bg-blue-800 text-white px-4 py-2 rounded-lg cursor-pointer"
+                >
+                  Contact Seller
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
     </div>
     </>
   )
