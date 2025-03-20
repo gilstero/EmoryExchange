@@ -29,7 +29,7 @@ urlpatterns = [
     path('', control_page, name="control page"),
     path('admin/', admin.site.urls),
 
-    #user API url
+    #user API url private
     path('api/auth/user/', UserView.as_view(), name="user"),
 
     #transaction API url
@@ -42,20 +42,26 @@ urlpatterns = [
     path('api/auth/message/', MessageView.as_view(), name="message"),
     path('api/auth/message/<int:user_id_1>/<int:user_id_2>/<str:date>/', MessageView.as_view()),
 
-    #listing API url
+    #listing API url private
     path('api/auth/listing/', ListingView.as_view(), name="listing"), 
     path('api/auth/listing/<int:listingID>/', ListingView.as_view()),
 
+    #listing API url public
+    path('api/pub/listing/', ListingViewPublic.as_view(), name="listingp"),
+
+    #register API view
     path("api/auth/register/", RegistrationView.as_view(), name="register"),
 
+    #login API view
     path("api/auth/login/", LoginView.as_view(), name="login"),
 
+    #logout API view
     path("api/auth/logout/", LogoutView.as_view(), name="logout"),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    # unimplemented
+    # dead apis
     path("forgotPassword/", ForgotPasswordView.as_view(), name="forgotPassword"),
     path("resetPassword/", ResetPasswordView.as_view(), name="resetPassword"),
 ]

@@ -38,5 +38,3 @@ class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
         fields = ['id', 'user', 'amount', 'ldate', 'img', 'recurring', 'tag', 'status', 'title', 'description']
-
-
