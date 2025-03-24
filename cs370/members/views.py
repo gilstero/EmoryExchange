@@ -32,7 +32,7 @@ class UserView(APIView):
             return Response({"error": "User ID must be provided"}, status=400)
     
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = UserSerializer(data={**request.data, **request.FILES})
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
@@ -45,7 +45,7 @@ class UserView(APIView):
         if not user:
             return Response({"error": "User not found from token"}, status=404)
 
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer = UserSerializer(user, data={**request.data, **request.FILES}, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
@@ -133,7 +133,7 @@ class MessageView(APIView):
         
         message.delete()
         return Response({"message": "Message deleted successfully"}, status=204)
-        
+
 class RideView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self, request):
@@ -192,7 +192,8 @@ class ListingViewProfile(APIView):
     def post(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
-        serializer = ListingSerializer(data=data)
+
+        serializer = ListingSerializer(data={**data, **request.FILES})
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
@@ -204,7 +205,7 @@ class ListingViewProfile(APIView):
         except Listing.DoesNotExist:
             return Response({"error": "Listing not found or unauthorized"}, status=404)
         
-        serializer = ListingSerializer(listing, data=request.data, partial=True)
+        serializer = ListingSerializer(listing, data={**request.data, **request.FILES}, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)

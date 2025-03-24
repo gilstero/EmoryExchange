@@ -25,7 +25,7 @@ class User(AbstractUser):
     profile_name = models.CharField(max_length=255, blank=True, null=True)
     real_name = models.CharField(max_length=255, blank=True, null=True)
     phone_num = models.CharField(max_length=20, blank=True, null=True)
-    propic = models.URLField(null=True, blank=True)
+    propic = models.ImageField(upload_to='profile_pic/',null=True, blank=True)
     last_login = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = 'email' 
@@ -75,7 +75,7 @@ class Listing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     ldate = models.DateTimeField(auto_now_add=True)
-    img = models.ImageField(upload_to='media/', null=True, blank=True)
+    img = models.ImageField(upload_to='listing_image/', null=True, blank=True)
     recurring = models.BooleanField(default=False)
     tag = models.CharField(max_length=20, choices=TAG_CHOICES, default='notag')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='live')

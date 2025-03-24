@@ -16,6 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
+from django.conf.urls.static import static
 from django.urls import include, path
 # from django.conf.urls import url
 from members.views import *
@@ -71,3 +72,7 @@ urlpatterns = [
     path("forgotPassword/", ForgotPasswordView.as_view(), name="forgotPassword"),
     path("resetPassword/", ResetPasswordView.as_view(), name="resetPassword"),
 ]
+
+# for accessing images
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
