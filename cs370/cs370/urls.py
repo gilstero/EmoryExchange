@@ -43,8 +43,14 @@ urlpatterns = [
     path('api/auth/message/<int:user_id_1>/<int:user_id_2>/<str:date>/', MessageView.as_view()),
 
     #listing API url private
-    path('api/auth/listing/', ListingView.as_view(), name="listing"), 
-    path('api/auth/listing/<int:listingID>/', ListingView.as_view()),
+    path('api/auth/listing/', ListingViewPrivate.as_view(), name="listing"), 
+    path('api/auth/listing/<int:listingID>/', ListingViewPrivate.as_view()),
+
+    #listing API url private profile
+    path('api/auth/listingprofile/', ListingViewProfile.as_view(), name="listingprofile"),
+
+    #listing API url public
+    path('api/auth/listingtag/', ListingViewTag.as_view(), name="listingp"),
 
     #listing API url public
     path('api/pub/listing/', ListingViewPublic.as_view(), name="listingp"),

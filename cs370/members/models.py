@@ -75,7 +75,7 @@ class Listing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     ldate = models.DateTimeField(auto_now_add=True)
-    img = models.URLField(null=True, blank=True)
+    img = models.ImageField(upload_to='media/', null=True, blank=True)
     recurring = models.BooleanField(default=False)
     tag = models.CharField(max_length=20, choices=TAG_CHOICES, default='notag')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='live')

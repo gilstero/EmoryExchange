@@ -155,26 +155,38 @@ class RideView(APIView):
             serializer.save()
             return Response(serializer.data)
 
-class ListingView(APIView):
+# only returns the listings that are for the specific user
+class ListingViewProfile(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
+        user_listings = Listing.objects.filter(user=request.user)
         output = []
-        for listing in Listing.objects.all():
+        for listing in user_listings:
             user_serializer = UserSerializer(listing.user)
             
-            output.append({
+            listing_data = {
                 "id": listing.id, 
                 "user": user_serializer.data,
                 "amount": listing.amount,
                 "ldate": listing.ldate,
-                "img": listing.img,
                 "recurring": listing.recurring,
                 "tag": listing.tag,
                 "status": listing.status,
                 "title": listing.title,
                 "description": listing.description
-            })
+            }
+
+            if listing.img:
+                try:
+                    listing_data['img'] = listing.img.url
+                except:
+                    listing_data['img'] = None
+            else:
+                listing_data['img'] = None
+            
+            output.append(listing_data)
+    
         return Response(output)
     
     def post(self, request):
@@ -207,8 +219,41 @@ class ListingView(APIView):
         listing.delete()
         return Response({"message": "Listing deleted successfully"}, status=204)
 
-class ListingViewPublic(APIView):
-    permission_classes = (AllowAny, )
+# listings for marketplace
+class ListingViewPrivate(APIView):
+    permission_classes = (IsAuthenticated, )
+    def get(self, request):
+        output = []
+        for listing in Listing.objects.all():
+            user_serializer = UserSerializer(listing.user)
+            
+            listing_data = {
+                "id": listing.id, 
+                "user": user_serializer.data,
+                "amount": listing.amount,
+                "ldate": listing.ldate,
+                "recurring": listing.recurring,
+                "tag": listing.tag,
+                "status": listing.status,
+                "title": listing.title,
+                "description": listing.description
+            }
+
+            if listing.img and hasattr(listing.img, 'url'):
+                try:
+                    listing_data['img'] = listing.img.url
+                except Exception:
+                    listing_data['img'] = None
+            else:
+                listing_data['img'] = None
+            
+            output.append(listing_data)
+    
+        return Response(output)
+
+# grab listings by tags
+class ListingViewTag(APIView):
+    permission_classes = (IsAuthenticated, )
     def get(self, request):
         tag = request.query_params.get('tag', None)
         if tag is None:
@@ -228,6 +273,38 @@ class ListingViewPublic(APIView):
         listings = Listing.objects.filter(tag=tag, status='live')
         serializer = ListingSerializer(listings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+# listings for marketplace but public
+class ListingViewPublic(APIView):
+    permission_classes = (AllowAny, )
+    def get(self, request):
+        output = []
+        for listing in Listing.objects.all():
+            user_serializer = UserSerializer(listing.user)
+            
+            listing_data = {
+                "id": listing.id, 
+                "user": user_serializer.data,
+                "amount": listing.amount,
+                "ldate": listing.ldate,
+                "recurring": listing.recurring,
+                "tag": listing.tag,
+                "status": listing.status,
+                "title": listing.title,
+                "description": listing.description
+            }
+
+            if listing.img and hasattr(listing.img, 'url'):
+                try:
+                    listing_data['img'] = listing.img.url
+                except Exception:
+                    listing_data['img'] = None
+            else:
+                listing_data['img'] = None
+            
+            output.append(listing_data)
+    
+        return Response(output)
 
 def control_page(request):
     return render(request, "home.html")
