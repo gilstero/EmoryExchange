@@ -70,8 +70,8 @@ Emory Exchange strives to:
 
 - **Frontend**: React.js  
 - **Backend**: Python/Django  
-- **Database**: PostgreSQL  
-- **Other**: Stripe Payments  
+- **Database**: SQLite  
+- **Other**: Stripe Payments (Future implementation)  
 
 ---
 
