@@ -5,6 +5,7 @@ import MarketPlaceNav from '../components/MarketPlaceNav';
 
 interface Listing {
   id: number;
+  user: User;
   title: string;
   description: string;
   tag: string;
@@ -15,7 +16,6 @@ interface Listing {
 
 interface User {
   id: number;
-  // user: User;
   email: string;
   password: string;
   phone_num: string;
@@ -64,10 +64,10 @@ export default function Profile() {
     fetchUser()
   }, []);
 
-  // const filteredListings = listings.filter(listing => {
-  //   const matchUser = listing.user.id === user.id
-  //   return matchUser
-  // })
+  const filteredListings = listings.filter(listing => {
+    const matchUser = listing.user.id === user.id
+    return matchUser
+  })
 
   console.log(user, listings)
 
@@ -92,11 +92,11 @@ export default function Profile() {
               <h1 className="text-4xl font-bold text-[#0c2b9c] mb-6">Manage Profile</h1>
               <p className="text-lg text-gray-700 mb-4">View and manage your listings below.</p>
             </div>
-            <Link to="/add-listing" className="p-4 bg-[#0c2b9c] text-white rounded-xl cursor-pointer font-bold">Add New Listing</Link>
+            <Link to="/add-listing" className="p-4 bg-[#0c2b9c] text-white rounded-xl cursor-pointer font-bold">+ Create a Listing</Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings.map((listing) => (
+            {filteredListings ? filteredListings.map((listing) => (
               <div
                 key={listing.id}
                 className="bg-white shadow-md rounded-lg p-6 flex flex-col items-start"
@@ -112,7 +112,7 @@ export default function Profile() {
                 </p>
                 <p className="mt-2 font-semibold">{new Date(listing.ldate).toLocaleDateString()}</p>
               </div>
-            ))}
+            )) : "No Listings"}
           </div>
         </div>
       </div>
