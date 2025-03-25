@@ -11,7 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import NotFound from './pages/NotFound'
 import Profile from './pages/Profile'
 import AddListing from './pages/AddListing'
-import FinishProfile from './pages/FinishProfile'
+import FinishProfile from './pages/EditProfile'
 
 function RegisterAndLogout() {
   localStorage.clear()
@@ -58,7 +58,7 @@ function App() {
           }
         />
         <Route 
-          path="/finish-profile" 
+          path="/edit-profile" 
           element={
             <ProtectedRoute>
               <FinishProfile />

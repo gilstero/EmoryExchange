@@ -2,6 +2,8 @@ import React, { FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../api'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faHome, faGraduationCap, faUser, faMagnifyingGlass,faBriefcase, faStore, faGear} from "@fortawesome/free-solid-svg-icons"
 
 export default function MarketPlaceNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -36,7 +38,7 @@ export default function MarketPlaceNav() {
   return (
     <nav className="p-4 md:p-8 sticky top-0 z-[100] border-b-blue-700 bg-[#efefee] shadow-md">
         <header className="prose prose-xl mx-auto flex justify-between flex-row text-[#0c2b9c] relative">
-            <Link className="text-2xl md:text-4xl font-bold grid place-content-center mb-0 md:mb-0 font-(family-name:Jockey-One) cursor-pointer" to="/marketplace" aria-label="Eagle Exchange">
+            <Link className="text-2xl md:text-3xl font-bold grid place-content-center mb-0 md:mb-0 font-(family-name:Jockey-One) cursor-pointer" to="/marketplace" aria-label="Eagle Exchange">
                 <h1 className="m-0 leading-tight">Eagle Exchange</h1>
             </Link>
 
@@ -54,10 +56,13 @@ export default function MarketPlaceNav() {
             {/* Desktop navigation */}
             <div className="hidden md:flex items-center sm:justify-evenly align-middle gap-4 font-semibold">
                 <Link to="/marketplace" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg transition-colors" aria-label="Marketplace">
-                    Marketplace
+                    <FontAwesomeIcon icon={faStore} /> Marketplace
                 </Link>
                 <Link to="/profile" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg transition-colors" aria-label="Profile">
-                    Profile
+                    <FontAwesomeIcon icon={faUser} /> Profile
+                </Link>
+                <Link to="/edit-profile" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg transition-colors" aria-label="Settings">
+                  <FontAwesomeIcon icon={faGear} /> Settings
                 </Link>
                 <button className="text-[#0c2b9c] hover:bg-gray-200 px-4 py-2 rounded-lg cursor-pointer text-lg transition-colors" aria-label="Logout" onClick={handleLogout}>
                     Logout

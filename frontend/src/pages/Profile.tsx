@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import MarketPlaceNav from '../components/MarketPlaceNav';
 
 interface Listing {
@@ -41,7 +41,6 @@ export default function Profile() {
         .then(response => {
             console.log("user", response)
             setUser(response.data)
-            console.log(user)
         })
         .catch(error => {
             console.error("Error fetching user:", error)
@@ -49,7 +48,7 @@ export default function Profile() {
   }
 
   const fetchListings = () => {
-    api.get('/api/auth/listing/')
+    api.get('/api/auth/listingprofile/')
         .then(response => {
             console.log("listing", response)
             setListings(response.data)
@@ -64,58 +63,74 @@ export default function Profile() {
     fetchUser()
   }, []);
 
-  const filteredListings = listings.filter(listing => {
-    const matchUser = listing.user.id === user.id
-    return matchUser
-  })
-
-  console.log(user, listings)
+  // const filteredListings = listings.filter(listing => {
+  //   const matchUser = listing.user.id === user.id
+  //   return matchUser
+  // })
 
   const pfp = user.propic || "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg"
 
   return (
     <>
     <MarketPlaceNav />
-    <div className="flex min-h-screen bg-[#efefee]">
+    <div className="container mx-auto px-4 py-8 bg-[#efefee]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Sidebar */}
-        <div className="w-1/4 bg-white p-6 shadow-md rounded-lg mt-6 mx-4 flex flex-col gap-4 items-center h-full mb-4">
-          <img src={pfp} alt="Profile Picture" className="w-50 h-50 rounded-full mt-6 mb-6" />
-          <p className="text-xl font-bold text-[#0c2b9c]">{user.real_name}</p>
-          <p className="text-sm text-gray-700">{user.email}</p>
-          <p className="text-sm text-gray-700 mb-6">{user.phone_num}</p>
+        <div className="md:col-span-1 bg-white p-6 shadow-md rounded-lg flex flex-col gap-6 items-center">
+          <img 
+            src={pfp} 
+            alt="Profile Picture" 
+            className="w-40 h-40 md:w-48 md:h-48 rounded-full object-cover mb-4" 
+          />
+          <p className="text-xl font-bold text-[#0c2b9c] text-center">{user.real_name}</p>
+          <p className="text-sm text-gray-700 text-center">{user.email}</p>
+          <p className="text-sm text-gray-700 text-center mb-4">{user.phone_num}</p>
         </div>
 
-        {/* Listings */}
-        <div className="w-3/4 p-6 ml-2 flex flex-col">
-          <div className="bg-white p-8 shadow-md rounded-lg mb-4 flex justify-between items-center">
-            <div className="flex flex-col">
-              <h1 className="text-4xl font-bold text-[#0c2b9c] mb-6">Manage Profile</h1>
-              <p className="text-lg text-gray-700 mb-4">View and manage your listings below.</p>
+        {/* Listings Section */}
+        <div className="md:col-span-2 space-y-6">
+          {/* Header */}
+          <div className="bg-white p-6 shadow-md rounded-lg flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+            <div>
+              <h1 className="text-2xl md:text-4xl font-bold text-[#0c2b9c] mb-2">Manage Profile</h1>
+              <p className="text-gray-700">View and manage your listings below.</p>
             </div>
-            <Link to="/add-listing" className="p-4 bg-[#0c2b9c] text-white rounded-xl cursor-pointer font-bold">+ Create a Listing</Link>
+            <Link to="/add-listing" className="p-4 bg-[#0c2b9c] text-white rounded-xl cursor-pointer font-bold">Create a Listing</Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredListings ? filteredListings.map((listing) => (
-              <div
-                key={listing.id}
-                className="bg-white shadow-md rounded-lg p-6 flex flex-col items-start"
-              >
-                <h3 className="text-xl font-bold text-[#0c2b9c] mb-2">{listing.title}</h3>
-                <p className="text-gray-700 mb-2">{listing.description}</p>
-                <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm">
-                  {listing.tag}
-                </span>
-                <p className="mt-2 font-semibold">Amount: ${listing.amount}</p>
-                <p className={`mt-1 ${listing.status === "live" ? "text-green-600" : "text-red-600"}`}>
-                  Status: {listing.status}
-                </p>
-                <p className="mt-2 font-semibold">{new Date(listing.ldate).toLocaleDateString()}</p>
+          {/* Listings Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {listings.length > 0 ? (
+              listings.map((listing) => (
+                <div
+                  key={listing.id}
+                  className="bg-white shadow-md rounded-lg p-4 flex flex-col h-full"
+                >
+                  <h3 className="text-lg font-bold text-[#0c2b9c] mb-2 truncate">{listing.title}</h3>
+                  <p className="text-gray-700 mb-2 line-clamp-3">{listing.description}</p>
+                  <div className="mt-auto">
+                    <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs mb-2 inline-block">
+                      {listing.tag}
+                    </span>
+                    <p className="font-semibold text-sm">Amount: ${listing.amount}</p>
+                    <p className={`text-sm ${listing.status === "live" ? "text-green-600" : "text-red-600"}`}>
+                      Status: {listing.status}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(listing.ldate).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center text-gray-500 py-8">
+                No Listings Found
               </div>
-            )) : "No Listings"}
+            )}
           </div>
         </div>
       </div>
+    </div>
     </>
   )
 }

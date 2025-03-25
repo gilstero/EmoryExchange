@@ -123,7 +123,7 @@ function Form({route, method}: FormProps) {
                     <div className="flex justify-center items-center p-2 bg-[#0c2b9c] text-white rounded-lg">Loading...</div>
                 ) : (
                     <button
-                        className="w-full p-3 bg-[#0c2b9c] text-white font-semibold rounded-lg shadow-md"
+                        className="w-full p-3 bg-[#0c2b9c] text-white font-semibold rounded-lg shadow-md cursor-pointer"
                         type="submit"
                     >
                         {title}

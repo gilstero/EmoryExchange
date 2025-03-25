@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router';
 //     phone_num = models.CharField(max_length=20, blank=True, null=True)
 //     propic = models.URLField(null=True, blank=True)
 
-export default function FinishProfile() {
+export default function EditProfile() {
     const [profileName, setProfileName] = useState("")
     const [realName, setRealName] = useState("")
     const [phone, setPhone] = useState("")
