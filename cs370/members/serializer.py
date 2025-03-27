@@ -32,7 +32,6 @@ class UserSerializer(serializers.ModelSerializer):
         # Handle image URL
         if propic_url:
             try:
-                # Download the image
                 response = requests.get(propic_url)
                 response.raise_for_status() 
 
