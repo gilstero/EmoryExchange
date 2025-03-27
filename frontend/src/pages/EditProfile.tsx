@@ -1,129 +1,292 @@
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useState, useRef, useEffect } from 'react'
 import api from '../api';
 import { useNavigate } from 'react-router';
-
-// profile_name = models.CharField(max_length=255, blank=True, null=True)
-//     real_name = models.CharField(max_length=255, blank=True, null=True)
-//     phone_num = models.CharField(max_length=20, blank=True, null=True)
-//     propic = models.URLField(null=True, blank=True)
+import { Link } from 'react-router-dom';
 
 export default function EditProfile() {
     const [profileName, setProfileName] = useState("")
     const [realName, setRealName] = useState("")
+    const [email, setEmail] = useState("")
     const [phone, setPhone] = useState("")
-    const [pfp, setPfp] = useState("")
+    const [pfp, setPfp] = useState<File | null>(null)
+    const [pfpPreview, setPfpPreview] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
+
+    const fetchUserData = async () => {
+        try {
+            const response = await api.get('/api/auth/user/')
+            const userData = response.data
+            
+            setProfileName(userData.profile_name || '')
+            setRealName(userData.real_name || '')
+            setEmail(userData.email || '')
+            setPhone(userData.phone_num || '')
+            setPfpPreview(userData.propic || null)
+        } catch (error) {
+            console.error("Error fetching user data", error)
+        }
+    }
+
+    useEffect(() => {
+        fetchUserData()
+    }, [])
+
+    // Handle file selection
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        
+        if (file) {
+            // File type and size validation
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif']
+            const maxSize = 5 * 1024 * 1024 // 5 MB
+
+            if (!validTypes.includes(file.type)) {
+                return
+            }
+
+            if (file.size > maxSize) {
+                return
+            }
+
+            setPfp(file)
+            
+            // Create preview
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setPfpPreview(reader.result as string)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
 
     const handleSubmit = async (e: FormEvent) => {
         setLoading(true)
         e.preventDefault()
         
         try {
-            const response = await api.post('/api/auth/user/', {
-                profile_name: profileName,
-                real_name: realName,
-                phone_num: phone,
-                propic: pfp
+            const profileData = new FormData()
+    
+            // Only append if values are non-empty
+            if (profileName) {
+                profileData.append('profile_name', profileName)
+            }
+            if (realName) {
+                profileData.append('real_name', realName)
+            }
+            if (phone) {
+                profileData.append('phone_num', phone)
+            }
+            if (pfp) {
+                profileData.append('propic', pfp)
+            }
+
+            console.log(profileData)
+            
+            // Log FormData contents for debugging
+            for (let [key, value] of profileData.entries()) {
+                console.log(`${key}: ${value}`)
+            }
+    
+            // const response = await api.patch('/api/auth/user/', {
+            //     profile_name: profileName,
+            //     real_name: realName,
+            //     email: email,
+            //     phone_num: phone,
+            //     propic: pfp
+            // })
+
+            const response = await api.patch('/api/auth/user/', profileData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             })
             
-            console.log("user completed:", response)
-            alert("Profile completed successfully!")
-            navigate("/marketplace")
+            console.log("Profile updated:", response)
+            alert("Profile updated successfully!")
+            navigate("/profile")
         } catch (error: any) {
-            console.error("Create listing error:", error)
+            console.error("Update profile error:", error)
             if (error.response?.data) {
-                // If the server returns specific error messages
-                alert(`Error: ${JSON.stringify(error.response.data)}`)
+                // More detailed error handling
+                const errorDetails = error.response.data
+                const errorMessages = Object.entries(errorDetails)
+                    .map(([field, errors]) => `${field}: ${errors}`)
+                    .join('\n')
+                
+                alert(`Error updating profile:\n${errorMessages}`)
             } else {
-                alert("Error creating listing. Please try again.")
+                alert("Error updating profile. Please try again.")
             }
         } finally {
             setLoading(false)
         }
     }
 
+    // const handleSubmit = async (e: FormEvent) => {
+    //     setLoading(true)
+    //     e.preventDefault()
+
+    //     const formData = new FormData()
+
+    //     formData.append('profile_name', profileName)
+    //     formData.append('real_name', realName)
+    //     formData.append('phone_num', phone)
+        
+    //     // Append file if exists
+    //     if (pfp) {
+    //         formData.append('propic', pfp)
+    //     }
+        
+    //     try {
+    //         const response = await api.patch('/api/auth/user/', formData, {
+    //             headers: {
+    //                 'Content-Type': 'multipart/form-data'
+    //             }
+    //         })
+            
+    //         console.log("Profile updated:", response)
+    //         alert("Profile updated successfully!")
+    //         navigate("/profile")
+    //     } catch (error: any) {
+    //         console.error("Update profile error:", error)
+    //         if (error.response?.data) {
+    //             alert(`Error: ${JSON.stringify(error.response.data)}`)
+    //         } else {
+    //             alert("Error updating profile. Please try again.")
+    //         }
+    //     } finally {
+    //         setLoading(false)
+    //     }
+    // }
+
+    // Trigger file input click
+    const triggerFileInput = () => {
+        fileInputRef.current?.click()
+    }
+
     return (
-        <div className="container mx-auto px-4 py-8">
-            <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center p-4">
-                <h1 className="text-4xl font-bold mb-6">Complete Your Profile</h1>
+        <div className="min-h-screen">
+            <nav className="p-8 sticky top-0 z-[100] border-b-blue-700 bg-[#efefee] shadow-md">
+                <header className="md:px-6 prose prose-xl mx-auto flex justify-between flex-row text-[#0c2b9d] hover:text-blue-600 transition-colors">
+                    <Link className="text-2xl font-bold grid place-content-center mb-2 md:mb-0 font-(family-name:Jockey-One) cursor-pointer" to="/profile" aria-label="Back to Profile">
+                        <h1>← Back</h1>
+                    </Link>
 
-                <div className="w-full max-w-md space-y-4">
-                    <div>
-                        <label htmlFor="profileName" className="block text-xl font-semibold mb-2">Username</label>
-                        <input
-                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            type="text"
-                            value={profileName}
-                            name="profileName"
-                            id="profileName"
-                            onChange={(e) => setProfileName(e.target.value)}
-                            placeholder="Enter a descriptive title"
-                            required
+                </header>
+            </nav>
+
+            <div className="max-w-md mx-auto mt-10 bg-white p-8 rounded-xl shadow-lg">
+                <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Edit Profile</h1>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Profile Picture Upload */}
+                    <div className="flex flex-col items-center mb-6">
+                        <input 
+                            type="file" 
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            accept="image/jpeg,image/png"
+                            className="hidden"
                         />
-                    </div>
-                    <div>
-                        <label htmlFor="realName" className="block text-xl font-semibold mb-2">Full Name</label>
-                        <input
-                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            type="text"
-                            value={realName}
-                            name="realName"
-                            id="realName"
-                            onChange={(e) => setRealName(e.target.value)}
-                            placeholder="Enter a descriptive title"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="phone" className="block text-xl font-semibold mb-2">Phone Number</label>
-                        <input
-                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            type="text"
-                            name="phone"
-                            id="phone"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="Describe your item or service in detail"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="pfp" className="block text-xl font-semibold mb-2">Profile Picture URL</label>
-                        <input
-                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            type="url"
-                            value={pfp}
-                            name="pfp"
-                            id="pfp"
-                            onChange={(e) => setPfp(e.target.value)}
-                            placeholder="Enter image URL (optional)"
-                        />
-                    </div>
-
-
-                    <div className="pt-4">
-                        {loading ? (
-                            <div className="flex justify-center items-center p-4 bg-blue-100 text-blue-800 rounded-lg">
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Loading...
+                        
+                        <div 
+                            onClick={triggerFileInput}
+                            className="w-32 h-32 rounded-full border-4 border-[#0c2b9d] cursor-pointer hover:border-blue-700 transition-all relative"
+                        >
+                            {pfpPreview ? (
+                                <img 
+                                    src={pfpPreview} 
+                                    alt="Profile Preview" 
+                                    className="w-full h-full rounded-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-[#0c2b9d]">
+                                    Upload Photo
+                                </div>
+                            )}
+                            <div className="absolute bottom-0 right-0 bg-white rounded-4xl p-2 border-2 border-[#0c2b9d]">
+                                📸
                             </div>
-                        ) : (
-                            <button
-                                className="w-full p-4 bg-[#0c2b9c] text-white font-semibold rounded-lg shadow-md hover:bg-[#0a2280] transition-colors"
-                                type="submit"
-                            >
-                                Complete Profile
-                            </button>
-                        )}
+                        </div>
                     </div>
-                </div>
-            </form>
+
+                    {/* Form Fields */}
+                    <div className="space-y-4">
+                        <div>
+                            <label htmlFor="profileName" className="block text-sm font-medium text-gray-700 mb-2">
+                                Username
+                            </label>
+                            <input
+                                type="text"
+                                id="profileName"
+                                value={profileName}
+                                onChange={(e) => setProfileName(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Choose a username"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="realName" className="block text-sm font-medium text-gray-700 mb-2">
+                                Full Name
+                            </label>
+                            <input
+                                type="text"
+                                id="realName"
+                                value={realName}
+                                onChange={(e) => setRealName(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Your full name"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+                                placeholder="Your email"
+                                disabled
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                                Phone Number
+                            </label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Your phone number"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="mt-6">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-3 bg-[#0c2b9d] text-white font-semibold rounded-md hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Updating...' : 'Save Changes'}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     )
 }

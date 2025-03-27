@@ -46,7 +46,6 @@ export default function AddListing() {
         } catch (error: any) {
             console.error("Create listing error:", error)
             if (error.response?.data) {
-                // If the server returns specific error messages
                 alert(`Error: ${JSON.stringify(error.response.data)}`)
             } else {
                 alert("Error creating listing. Please try again.")
@@ -62,7 +61,7 @@ export default function AddListing() {
     return (
         <div>
             <nav className="p-8 sticky top-0 z-[100] border-b-blue-700 bg-[#efefee] shadow-md">
-                <header className="md:px-6 prose prose-xl mx-auto flex justify-between flex-row text-[#0c2b9c]">
+                <header className="md:px-6 prose prose-xl mx-auto flex justify-between flex-row text-[#0c2b9d] hover:text-blue-600 transition-colors">
                     <Link className="text-2xl font-bold grid place-content-center mb-2 md:mb-0 font-(family-name:Jockey-One) cursor-pointer" to="/profile" aria-label="Back to Profile">
                         <h1>← Back</h1>
                     </Link>
@@ -76,7 +75,7 @@ export default function AddListing() {
                     <div>
                         <label htmlFor="title" className="block text-xl font-semibold mb-2">Title</label>
                         <input
-                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#] focus:border-transparent"
                             type="text"
                             value={title}
                             name="title"
@@ -182,7 +181,7 @@ export default function AddListing() {
                             </div>
                         ) : (
                             <button
-                                className="w-full p-4 bg-[#0c2b9c] text-white font-semibold rounded-lg shadow-md hover:bg-[#0a2280] transition-colors"
+                                className="w-full p-4 bg-[#0c2b9c] text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors cursor-pointer"
                                 type="submit"
                             >
                                 Create Listing

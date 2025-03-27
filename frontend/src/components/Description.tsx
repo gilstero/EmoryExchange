@@ -3,7 +3,7 @@ import React from 'react'
 export default function Description() {
   return (
     <>
-      <div className="flex flex-col justify-center items-center gap-6 text-[#0c2b9c] text-center mb-4">
+      <div className="flex flex-col justify-center items-center gap-6 text-[#0c2b9c] text-center mb-4 p-12">
         <h1 className="text-2xl font-bold">What is Eagle Exchange?</h1>
         <p className="block">Eagle Exchange is Emory's premier freelancing platform, allowing Emory students to list their services on an Emory-exclusive site.</p>
       </div>

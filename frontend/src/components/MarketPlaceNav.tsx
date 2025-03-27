@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import api from '../api'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faHome, faGraduationCap, faUser, faMagnifyingGlass,faBriefcase, faStore, faGear} from "@fortawesome/free-solid-svg-icons"
+import { faUser, faStore, faGear} from "@fortawesome/free-solid-svg-icons"
 
 export default function MarketPlaceNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -87,6 +87,14 @@ export default function MarketPlaceNav() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                         Profile
+                    </Link>
+                    <Link 
+                      to="/edit-profile" 
+                      className="bg-[#0c2b9c] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg text-center" 
+                      aria-label="Settings"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                        Settings
                     </Link>
                     <button 
                       className="text-[#0c2b9c] border border-[#0c2b9c] px-4 py-2 rounded-lg cursor-pointer text-lg text-center" 
