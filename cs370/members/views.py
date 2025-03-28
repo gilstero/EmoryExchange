@@ -17,10 +17,12 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from . models import *
 from . serializer import *
 import os
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 class UserView(APIView):
     # retrive the info for the table User
     permission_classes = (IsAuthenticated,)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     
     def get(self, request):
         try:
@@ -44,11 +46,27 @@ class UserView(APIView):
         
         if not user:
             return Response({"error": "User not found from token"}, status=404)
+        
+        data = {key: value[0] if isinstance(value, list) else value for key, value in request.data.items()}
 
-        serializer = UserSerializer(user, data={**request.data, **request.FILES}, partial=True)
-        if serializer.is_valid(raise_exception=True):
+        serializer = UserSerializer(user, data=data, partial=True)
+
+        #       ----- Debugging ------
+        # print(type(request.data['profile_name']))
+        # print(type(request.data['real_name']))
+        # print(type(request.data['propic']))
+        # print(f"profile_name: {repr(request.data['profile_name'])}")
+        # print(f"real_name: {repr(request.data['real_name'])}")
+        # print(serializer)
+        # print(serializer.get_initial())
+
+        
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        else:
+            return Response({"message": "Information not serialized correctly. Possible issue with information types served in form-data."}, status=400)
+
 
     def delete(self, request):
         user = request.user
@@ -205,7 +223,10 @@ class ListingViewProfile(APIView):
         except Listing.DoesNotExist:
             return Response({"error": "Listing not found or unauthorized"}, status=404)
         
-        serializer = ListingSerializer(listing, data={**request.data, **request.FILES}, partial=True)
+        # unravelling form-data
+        data = {key: value[0] if isinstance(value, list) else value for key, value in request.data.items()}
+        
+        serializer = ListingSerializer(listing, data=data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
@@ -274,7 +295,7 @@ class ListingViewTag(APIView):
         listings = Listing.objects.filter(tag=tag, status='live')
         serializer = ListingSerializer(listings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 # listings for marketplace but public
 class ListingViewPublic(APIView):
     permission_classes = (AllowAny, )
