@@ -4,6 +4,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 # User Table
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
+'''
+Some information on the models that were implemented/ not implemented:
+1. Ride model is a skeleton of what will be implemented in the future, only the model has been created
+2. User model inherets the abstract base user model which we get rid of the 'username' in favor of the email
+3. Transaction model also has not been implemented but is a abstract idea of what will be done
+4. 
+'''
+
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:

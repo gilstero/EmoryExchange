@@ -116,8 +116,20 @@ class TransactionView(APIView):
         transaction.delete()
         return Response({"message": "Transaction deleted successfully"}, status=204)
 
+class SendMessage(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        # add implementation to not have to give all of the information
+
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
 class MessageView(APIView):
     permission_classes = (IsAuthenticated,)
+
     def get(self, request):
         output = [{"user_id_1": message.user_id_1,
                    "user_id_2": message.user_id_2,
@@ -125,32 +137,27 @@ class MessageView(APIView):
                    "message": message.message}
                   for message in Message.objects.all()]
         return Response(output)
-    
-    def post(self, request):
-        serializer = MessageSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
         
-    def patch(self, request, user_id_1, user_id_2, date):
-        try:
-            message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
-        except:
-            return Response({"error": "Message not found"}, status=404)
-
-        serializer = MessageSerializer(message, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
-
-    def delete(self, request, user_id_1, user_id_2, date):
-        try:
-            message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
-        except:
-            return Response({"error": "Message not found"}, status=404)
         
-        message.delete()
-        return Response({"message": "Message deleted successfully"}, status=204)
+    # def patch(self, request, user_id_1, user_id_2, date):
+    #     try:
+    #         message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+    #     except:
+    #         return Response({"error": "Message not found"}, status=404)
+
+    #     serializer = MessageSerializer(message, data=request.data)
+    #     if serializer.is_valid(raise_exception=True):
+    #         serializer.save()
+    #         return Response(serializer.data)
+
+    # def delete(self, request, user_id_1, user_id_2, date):
+    #     try:
+    #         message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+    #     except:
+    #         return Response({"error": "Message not found"}, status=404)
+        
+    #     message.delete()
+    #     return Response({"message": "Message deleted successfully"}, status=204)
 
 class RideView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -251,7 +258,6 @@ class ListingViewPrivate(APIView):
             
             listing_data = {
                 "id": listing.id, 
-                "user": user_serializer.data,
                 "amount": listing.amount,
                 "ldate": listing.ldate,
                 "recurring": listing.recurring,
@@ -305,8 +311,7 @@ class ListingViewPublic(APIView):
             user_serializer = UserSerializer(listing.user)
             
             listing_data = {
-                "id": listing.id, 
-                "user": user_serializer.data,
+                "id": listing.id,
                 "amount": listing.amount,
                 "ldate": listing.ldate,
                 "recurring": listing.recurring,
