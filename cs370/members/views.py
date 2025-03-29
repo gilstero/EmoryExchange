@@ -18,6 +18,7 @@ from . models import *
 from . serializer import *
 import os
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.db.models import Q
 
 class UserView(APIView):
     # retrive the info for the table User
@@ -120,23 +121,23 @@ class SendMessage(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        # add implementation to not have to give all of the information
-
-        serializer = MessageSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
-
+        pass
+        
+        serialized_messages = None
+        
+        return Response(serialized_messages.data)
+        
 class MessageView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        output = [{"user_id_1": message.user_id_1,
-                   "user_id_2": message.user_id_2,
-                   "date": message.date,
-                   "message": message.message}
-                  for message in Message.objects.all()]
-        return Response(output)
+
+        user = request.user
+
+        messages = Message.objects.filter(Q(user_id_1=user) | Q(user_id_2=user))
+        serialized_messages = MessageSerializer(messages, many=True)
+
+        return Response(serialized_messages.data)
         
         
     # def patch(self, request, user_id_1, user_id_2, date):
