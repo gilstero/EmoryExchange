@@ -58,4 +58,6 @@ urlpatterns = [
     # unimplemented
     path("forgotPassword/", ForgotPasswordView.as_view(), name="forgotPassword"),
     path("resetPassword/", ResetPasswordView.as_view(), name="resetPassword"),
+    
+    path("messages/", MessageView.as_view(), name="messages")
 ]

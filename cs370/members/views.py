@@ -16,6 +16,8 @@ from . models import *
 from . serializer import *
 from datetime import datetime, timedelta
 import os
+from django.db.models import Q
+
 
 class UserView(APIView):
     # retrive the info for the table User
@@ -98,21 +100,33 @@ class TransactionView(APIView):
         transaction.delete()
         return Response({"message": "Transaction deleted successfully"}, status=204)
 
-class MessageView(APIView):
+class MessageView(APIView): #CHANGED HERE
     permission_classes = (IsAuthenticated,)
+
     def get(self, request):
-        output = [{"user_id_1": message.user_id_1,
-                   "user_id_2": message.user_id_2,
-                   "date": message.date,
-                   "message": message.message}
-                  for message in Message.objects.all()]
-        return Response(output)
-    
+        user = request.user
+        other_user_id = request.query_params.get("other_user")
+
+        if not other_user_id:
+            return Response({"error": "Missing ?other_user=<user_id>"}, status=400)
+
+        messages = Message.objects.filter(
+            Q(user_id_1=user.id, user_id_2=other_user_id) |
+            Q(user_id_1=other_user_id, user_id_2=user.id)
+        ).order_by("date")
+
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data)
+
     def post(self, request):
-        serializer = MessageSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        data = request.data.copy()
+        data['user_id_1'] = request.user.id  # force sender to be the logged-in user
+
+        serializer = MessageSerializer(data=data)
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        return Response(serializer.errors, status=400)
         
     def patch(self, request, user_id_1, user_id_2, date):
         try:
@@ -292,6 +306,7 @@ class ResetPasswordView(APIView):
         return Response({"success": True, "message": "Your password has been reset successfully!"}, status=status.HTTP_200_OK)
 
 class RegistrationView(APIView):
+    permission_classes = [AllowAny] #added this to work in postman - CHANGED HERE
 
     def post(self, request):
         required_fields = ["email", "password"]
