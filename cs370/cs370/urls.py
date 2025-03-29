@@ -25,6 +25,14 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+'''
+Some information on the url patterns:
+- if the URL pattern includes an 'auth' statement, the path is protected by a bearer token that must be recieved via login
+- image urls are accessable through a get of either the listings or the user
+- while login view is under 'auth' no token is required
+- lisitings can be viewed publically under 'api/pub/listing/'
+'''
+
 urlpatterns = [
     # This is the basic control page with the buttons to the endpoints for navigation
     path('', control_page, name="control page"),
@@ -40,8 +48,9 @@ urlpatterns = [
     path('api/auth/ride/', RideView.as_view(), name="ride"),
 
     #message API url
-    path('api/auth/message/', MessageView.as_view(), name="message"),
-    path('api/auth/message/<int:user_id_1>/<int:user_id_2>/<str:date>/', MessageView.as_view()),
+    path('api/auth/messageview/', MessageView.as_view(), name="messageview"),
+    # only takes a post request to send the message to another user
+    path('api/auth/messagesend/', SendMessage.as_view(), name="messagesend"),
 
     #listing API url private
     path('api/auth/listing/', ListingViewPrivate.as_view(), name="listing"), 
