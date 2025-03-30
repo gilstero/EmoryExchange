@@ -51,10 +51,11 @@ urlpatterns = [
     path('api/auth/messageview/', MessageView.as_view(), name="messageview"),
     # only takes a post request to send the message to another user
     path('api/auth/messagesend/', SendMessage.as_view(), name="messagesend"),
+    # takes a patch and delete request
+    path('api/auth/messageedit/', MessageEdit.as_view(), name="editmessage"),
 
     #listing API url private
     path('api/auth/listing/', ListingViewPrivate.as_view(), name="listing"), 
-    path('api/auth/listing/<int:listingID>/', ListingViewPrivate.as_view()),
 
     #listing API url private profile
     path('api/auth/listingprofile/', ListingViewProfile.as_view(), name="listingprofile"),
@@ -64,6 +65,9 @@ urlpatterns = [
 
     #listing API url public
     path('api/pub/listing/', ListingViewPublic.as_view(), name="listingp"),
+
+    #listing API for listing name owner
+    path('api/auth/listingowner', NameFromListing.as_view(), name="listingowner"),
 
     #register API view
     path("api/auth/register/", RegistrationView.as_view(), name="register"),
