@@ -17,10 +17,13 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from . models import *
 from . serializer import *
 import os
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.db.models import Q
 
 class UserView(APIView):
     # retrive the info for the table User
     permission_classes = (IsAuthenticated,)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     
     def get(self, request):
         try:
@@ -44,11 +47,27 @@ class UserView(APIView):
         
         if not user:
             return Response({"error": "User not found from token"}, status=404)
+        
+        data = {key: value[0] if isinstance(value, list) else value for key, value in request.data.items()}
 
-        serializer = UserSerializer(user, data={**request.data, **request.FILES}, partial=True)
-        if serializer.is_valid(raise_exception=True):
+        serializer = UserSerializer(user, data=data, partial=True)
+
+        #       ----- Debugging ------
+        # print(type(request.data['profile_name']))
+        # print(type(request.data['real_name']))
+        # print(type(request.data['propic']))
+        # print(f"profile_name: {repr(request.data['profile_name'])}")
+        # print(f"real_name: {repr(request.data['real_name'])}")
+        # print(serializer)
+        # print(serializer.get_initial())
+
+        
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        else:
+            return Response({"message": "Information not serialized correctly. Possible issue with information types served in form-data."}, status=400)
+
 
     def delete(self, request):
         user = request.user
@@ -98,41 +117,89 @@ class TransactionView(APIView):
         transaction.delete()
         return Response({"message": "Transaction deleted successfully"}, status=204)
 
+class SendMessage(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+
+        recipient = request.data.get("user_id_2")
+        message = request.data.get("message")
+
+        if not recipient or not message:
+            return Response({"error": "Recipient ID and message are required"}, status=400)
+        
+        try:
+            pass
+        except:
+            return Response({"error": "Recipient not found"}, status=400)
+        
+        message = Message.objects.create(user_id_1=user, user_id_2=recipient, message=message)
+        serializer = MessageSerializer(message)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        
 class MessageView(APIView):
     permission_classes = (IsAuthenticated,)
+
     def get(self, request):
-        output = [{"user_id_1": message.user_id_1,
-                   "user_id_2": message.user_id_2,
-                   "date": message.date,
-                   "message": message.message}
-                  for message in Message.objects.all()]
-        return Response(output)
+
+        user = request.user
+
+        messages = Message.objects.filter(Q(user_id_1=user) | Q(user_id_2=user))
+        serialized_messages = MessageSerializer(messages, many=True)
+
+        return Response(serialized_messages.data)
     
-    def post(self, request):
-        serializer = MessageSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
-        
-    def patch(self, request, user_id_1, user_id_2, date):
+class MessageEdit(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def patch(self, request):
+        user = request.user
+        data = request.data
+
+        user_id_1 = data.get("user_id_1")
+        user_id_2 = data.get("user_id_2")
+        date = data.get("date")
+
         try:
             message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+
+            if message.user_id_1 != user:
+                return Response({"error": "Message requested was not sent by user"}, status=status.HTTP_403_FORBIDDEN)
+            
         except:
             return Response({"error": "Message not found"}, status=404)
 
-        serializer = MessageSerializer(message, data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        serializer = MessageSerializer(message, data=data, partial=True)
+        if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request):
 
-    def delete(self, request, user_id_1, user_id_2, date):
+        user = request.user
+        data = request.data
+
+        user_id_1 = data.get("user_id_1")
+        user_id_2 = data.get("user_id_2")
+        date = data.get("date")
+
         try:
             message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+
+            if message.user_id_1 != user:
+                return Response({"error": "Message requested was not sent by user"}, status=status.HTTP_403_FORBIDDEN)
+            
+            message.delete()
+            return Response({"message": "Message deleted successfully."}, status=200)
+
         except:
             return Response({"error": "Message not found"}, status=404)
-        
-        message.delete()
-        return Response({"message": "Message deleted successfully"}, status=204)
 
 class RideView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -205,7 +272,10 @@ class ListingViewProfile(APIView):
         except Listing.DoesNotExist:
             return Response({"error": "Listing not found or unauthorized"}, status=404)
         
-        serializer = ListingSerializer(listing, data={**request.data, **request.FILES}, partial=True)
+        # unravelling form-data
+        data = {key: value[0] if isinstance(value, list) else value for key, value in request.data.items()}
+        
+        serializer = ListingSerializer(listing, data=data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
@@ -230,7 +300,6 @@ class ListingViewPrivate(APIView):
             
             listing_data = {
                 "id": listing.id, 
-                "user": user_serializer.data,
                 "amount": listing.amount,
                 "ldate": listing.ldate,
                 "recurring": listing.recurring,
@@ -251,6 +320,50 @@ class ListingViewPrivate(APIView):
             output.append(listing_data)
     
         return Response(output)
+    
+    def post(self, request):
+        try:
+            data = request.data
+            
+            listing = Listing(
+                user=request.user,
+                amount=data.get('amount'),
+                ldate=data.get('ldate'),
+                recurring=data.get('recurring'),
+                tag=data.get('tag'),
+                status=data.get('status', 'pending'),
+                title=data.get('title'),
+                description=data.get('description')
+            )
+            
+            if 'img' in request.FILES:
+                listing.img = request.FILES['img']
+                
+            listing.save()
+            
+            listing_data = {
+                "id": listing.id, 
+                "amount": listing.amount,
+                "ldate": listing.ldate,
+                "recurring": listing.recurring,
+                "tag": listing.tag,
+                "status": listing.status,
+                "title": listing.title,
+                "description": listing.description
+            }
+            
+            if listing.img and hasattr(listing.img, 'url'):
+                try:
+                    listing_data['img'] = listing.img.url
+                except Exception:
+                    listing_data['img'] = None
+            else:
+                listing_data['img'] = None
+                
+            return Response(listing_data, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # grab listings by tags
 class ListingViewTag(APIView):
@@ -274,7 +387,7 @@ class ListingViewTag(APIView):
         listings = Listing.objects.filter(tag=tag, status='live')
         serializer = ListingSerializer(listings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 # listings for marketplace but public
 class ListingViewPublic(APIView):
     permission_classes = (AllowAny, )
@@ -284,8 +397,7 @@ class ListingViewPublic(APIView):
             user_serializer = UserSerializer(listing.user)
             
             listing_data = {
-                "id": listing.id, 
-                "user": user_serializer.data,
+                "id": listing.id,
                 "amount": listing.amount,
                 "ldate": listing.ldate,
                 "recurring": listing.recurring,
@@ -306,6 +418,38 @@ class ListingViewPublic(APIView):
             output.append(listing_data)
     
         return Response(output)
+
+# returns the name and id of a listing through the listing id
+class NameFromListing(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        data = request.data
+
+        lisitingid = data.get("id")
+
+        try:
+            pass
+        except Listing.DoesNotExist:
+            return Response({"error": "Listing not found or unauthorized"}, status=404)
+        
+class SingleListing(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        target_listing = request.data.get("id")
+
+        if not target_listing:
+            return Response({"error": "Listing ID is required."}, status=400)
+        
+        try:
+            listing = Listing.objects.get(id=target_listing)
+        except:
+            return Response({"error": "Listing not found."}, status=404)
+
+        serializer = ListingSerializer(listing)
+        return Response(serializer.data, status=200)     
 
 def control_page(request):
     return render(request, "home.html")

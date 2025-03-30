@@ -1,5 +1,13 @@
 from rest_framework import serializers
 from . models import *
+import uuid
+from urllib.parse import urlparse
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
+import requests
+from PIL import Image
+from django.core.files.base import ContentFile
+import io
 
 # User Database Serializer
 class UserSerializer(serializers.ModelSerializer):
@@ -29,13 +37,23 @@ class RideSerializer(serializers.ModelSerializer):
         
 # Message Database Serializer
 class MessageSerializer(serializers.ModelSerializer):
+    user_id_1_name = serializers.SerializerMethodField()
+    user_id_2_name = serializers.SerializerMethodField()
+    
     class Meta:
         model = Message
-        fields = ['user_id_1', 'user_id_2', 'date', 'message']
+        fields = ['user_id_1', 'user_id_1_name', 'user_id_2', 'user_id_2_name', 'date', 'message']
+    
+    def get_user_id_1_name(self, obj):
+        """Returns profile_name if available, otherwise real_name."""
+        return obj.user_id_1.profile_name or obj.user_id_1.real_name or "User has not given a name"
+
+    def get_user_id_2_name(self, obj):
+        """Returns profile_name if available, otherwise real_name."""
+        return obj.user_id_2.profile_name or obj.user_id_2.real_name or "User has not given a name"
 
 # Listing Database Serializer
 class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
         fields = ['id', 'user', 'amount', 'ldate', 'recurring', 'tag', 'status', 'title', 'description', 'img']
-

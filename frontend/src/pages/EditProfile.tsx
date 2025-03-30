@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
 
 export default function EditProfile() {
+    const backendUrl = import.meta.env.VITE_API_URL
+
     const [profileName, setProfileName] = useState("")
     const [realName, setRealName] = useState("")
     const [email, setEmail] = useState("")
@@ -19,11 +21,13 @@ export default function EditProfile() {
             const response = await api.get('/api/auth/user/')
             const userData = response.data
             
+            console.log(userData)
+            
             setProfileName(userData.profile_name || '')
             setRealName(userData.real_name || '')
             setEmail(userData.email || '')
             setPhone(userData.phone_num || '')
-            setPfpPreview(userData.propic || null)
+            setPfpPreview(`${backendUrl}${userData.propic}` || null)
         } catch (error) {
             console.error("Error fetching user data", error)
         }
@@ -38,7 +42,6 @@ export default function EditProfile() {
         const file = e.target.files?.[0]
         
         if (file) {
-            // File type and size validation
             const validTypes = ['image/jpeg', 'image/png', 'image/gif']
             const maxSize = 5 * 1024 * 1024 // 5 MB
 
@@ -52,7 +55,6 @@ export default function EditProfile() {
 
             setPfp(file)
             
-            // Create preview
             const reader = new FileReader()
             reader.onloadend = () => {
                 setPfpPreview(reader.result as string)
@@ -124,43 +126,6 @@ export default function EditProfile() {
         }
     }
 
-    // const handleSubmit = async (e: FormEvent) => {
-    //     setLoading(true)
-    //     e.preventDefault()
-
-    //     const formData = new FormData()
-
-    //     formData.append('profile_name', profileName)
-    //     formData.append('real_name', realName)
-    //     formData.append('phone_num', phone)
-        
-    //     // Append file if exists
-    //     if (pfp) {
-    //         formData.append('propic', pfp)
-    //     }
-        
-    //     try {
-    //         const response = await api.patch('/api/auth/user/', formData, {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data'
-    //             }
-    //         })
-            
-    //         console.log("Profile updated:", response)
-    //         alert("Profile updated successfully!")
-    //         navigate("/profile")
-    //     } catch (error: any) {
-    //         console.error("Update profile error:", error)
-    //         if (error.response?.data) {
-    //             alert(`Error: ${JSON.stringify(error.response.data)}`)
-    //         } else {
-    //             alert("Error updating profile. Please try again.")
-    //         }
-    //     } finally {
-    //         setLoading(false)
-    //     }
-    // }
-
     // Trigger file input click
     const triggerFileInput = () => {
         fileInputRef.current?.click()
@@ -198,7 +163,7 @@ export default function EditProfile() {
                             {pfpPreview ? (
                                 <img 
                                     src={pfpPreview} 
-                                    alt="Profile Preview" 
+                                    aria-Label="Profile Preview"
                                     className="w-full h-full rounded-full object-cover"
                                 />
                             ) : (

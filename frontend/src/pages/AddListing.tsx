@@ -1,16 +1,30 @@
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useState, ChangeEvent } from 'react'
 import api from '../api';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function AddListing() {
+    const backendUrl = import.meta.env.VITE_API_URL
+
     const [amount, setAmount] = useState<string | number>("")
-    const [imgUrl, setImgUrl] = useState("")
+    const [image, setImage] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
     const [recurring, setRecurring] = useState(false)
     const [tag, setTag] = useState("notag")
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
+
+    const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const selectedFile = e.target.files[0];
+            setImage(selectedFile);
+            
+            // Create preview URL
+            const previewUrl = URL.createObjectURL(selectedFile);
+            setImagePreview(previewUrl);
+        }
+    }
 
     const handleSubmit = async (e: FormEvent) => {
         setLoading(true)
@@ -30,14 +44,41 @@ export default function AddListing() {
         }
         
         try {
-            const response = await api.post('/api/auth/listing/', {
-                amount: tag === 'free' ? 0 : amount,
-                img: imgUrl,
-                recurring: recurring,
-                tag: tag,
-                title: title,
-                description: description,
-                status: 'live'
+            const listingData = new FormData()
+            
+            // Append all the form fields to FormData
+            listingData.append('title', title)
+            listingData.append('description', description)
+            listingData.append('tag', tag)
+            listingData.append('status', 'live')
+
+            if (recurring === true) {
+                listingData.append('recurring', "True")
+            } else {
+                listingData.append('recurring', "False")
+            }
+            
+            // Only append amount if not free
+            if (tag === 'free') {
+                listingData.append('amount', '0')
+            } else {
+                listingData.append('amount', amount.toString())
+            }
+            
+            // Append image if selected
+            if (image) {
+                listingData.append('img', image)
+            }
+            
+            // Log FormData contents for debugging
+            for (let [key, value] of listingData.entries()) {
+                console.log(`${key}: ${value}`)
+            }
+            
+            const response = await api.post('/api/auth/listing/', listingData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             })
             
             console.log("listing created:", response)
@@ -75,7 +116,7 @@ export default function AddListing() {
                     <div>
                         <label htmlFor="title" className="block text-xl font-semibold mb-2">Title</label>
                         <input
-                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#] focus:border-transparent"
+                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             type="text"
                             value={title}
                             name="title"
@@ -144,16 +185,25 @@ export default function AddListing() {
                     </div>
 
                     <div>
-                        <label htmlFor="imgUrl" className="block text-xl font-semibold mb-2">Image URL</label>
+                        <label htmlFor="image" className="block text-xl font-semibold mb-2">Upload Image</label>
                         <input
-                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            type="url"
-                            value={imgUrl}
-                            name="imgUrl"
-                            id="imgUrl"
-                            onChange={(e) => setImgUrl(e.target.value)}
-                            placeholder="Enter image URL (optional)"
+                            className="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            type="file"
+                            name="image"
+                            id="image"
+                            accept="image/*"
+                            onChange={handleImageChange}
                         />
+                        {imagePreview && (
+                            <div className="mt-4">
+                                <p className="text-sm mb-2">Image Preview:</p>
+                                <img
+                                    src={imagePreview}
+                                    alt="Preview"
+                                    className="max-h-40 max-w-full object-contain rounded-md"
+                                />
+                            </div>
+                        )}
                     </div>
 
                     <div>
