@@ -74,6 +74,9 @@ urlpatterns = [
     #listing API that takes the id of the lsiting and returns everything
     path('api/auth/singlelisting/', SingleListing.as_view(), name="singlelisting"),
 
+    # MISHA - singlelisting api endpoint that takes the listing id as a url param
+    path('api/auth/singlelisting/<int:listing_id>/', SingleListing.as_view(), name="singlelisting"),
+
     #register API view
     path("api/auth/register/", RegistrationView.as_view(), name="register"),
 

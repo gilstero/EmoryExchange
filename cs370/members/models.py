@@ -77,7 +77,8 @@ class Listing(models.Model):
         ('tutoring', 'Tutoring'),
         ('careercoach', 'Career Coaching'),
         ('moving', 'Moving Help'),
-        ('researchassist', 'Research Assistance')
+        ('researchassist', 'Research Assistance'),
+        ('clothing', 'Clothing'),
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -300,6 +300,7 @@ class ListingViewPrivate(APIView):
             
             listing_data = {
                 "id": listing.id, 
+                "user": user_serializer.data,
                 "amount": listing.amount,
                 "ldate": listing.ldate,
                 "recurring": listing.recurring,
@@ -436,20 +437,61 @@ class NameFromListing(APIView):
 class SingleListing(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
-        user = request.user
-        target_listing = request.data.get("id")
-
-        if not target_listing:
-            return Response({"error": "Listing ID is required."}, status=400)
-        
+    # MISHA - get, patch, and delete for single listing with id as url param
+    def get(self, request, listing_id):
         try:
-            listing = Listing.objects.get(id=target_listing)
+            listing = Listing.objects.get(id=listing_id)
         except:
             return Response({"error": "Listing not found."}, status=404)
-
+        
         serializer = ListingSerializer(listing)
-        return Response(serializer.data, status=200)     
+        return Response(serializer.data, status=200)
+    
+    def patch(self, request, listing_id):
+        try:
+            listing = Listing.objects.get(id=listing_id)
+        except:
+            return Response({"error": "Listing not found."}, status=404)
+        
+        # Check if the authenticated user is the owner of the listing
+        if request.user != listing.user:
+            return Response({"error": "You don't have permission to update this listing."}, status=403)
+        
+        # Partial update with patch
+        serializer = ListingSerializer(listing, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+    
+    def delete(self, request, listing_id):
+        try:
+            listing = Listing.objects.get(id=listing_id)
+        except:
+            return Response({"error": "Listing not found."}, status=404)
+        
+        # Check if the authenticated user is the owner of the listing
+        if request.user != listing.user:
+            return Response({"error": "You don't have permission to delete this listing."}, status=403)
+        
+        # Delete the listing
+        listing.delete()
+        return Response({"message": "Listing deleted successfully."}, status=204)
+
+    # def get(self, request):
+    #     user = request.user
+    #     target_listing = request.data.get("id")
+
+    #     if not target_listing:
+    #         return Response({"error": "Listing ID is required."}, status=400)
+        
+    #     try:
+    #         listing = Listing.objects.get(id=target_listing)
+    #     except:
+    #         return Response({"error": "Listing not found."}, status=404)
+
+    #     serializer = ListingSerializer(listing)
+    #     return Response(serializer.data, status=200)     
 
 def control_page(request):
     return render(request, "home.html")
