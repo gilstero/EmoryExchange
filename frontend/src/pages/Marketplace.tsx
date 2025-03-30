@@ -109,10 +109,17 @@ export default function Marketplace() {
                   {listing.title}
                 </h3>
                 <div className="flex justify-center">
-                  <img 
-                    src={listing.img ? `${backendUrl}${listing.img}` : NoImage}
-                    className="w-50 self-center object-cover"
-                  />
+                <img 
+                  src={listing.img ? (
+                    typeof listing.img === 'string' 
+                      ? `${backendUrl}${listing.img}` 
+                      : URL.createObjectURL(listing.img)
+                  ) : NoImage}
+                  className="w-50 self-center object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = NoImage;
+                  }}
+                />
                 </div>
                 <p className="text-gray-700 mb-2 ">{listing.description}</p>
                 <p className="font-semibold"> Tag: <span className="text-blue-600 text-md w-auto">{listing.tag}</span></p>
@@ -160,17 +167,22 @@ export default function Marketplace() {
                 <div>
                   <h3 className="text-lg font-semibold mb-2"> Seller Information</h3>
                   <div className="flex items-center mb-4">
-                    {selectedListing.user.propic ? (
-                      <img 
-                        src={`${backendUrl}${selectedListing.user.propic}`} 
-                        alt={selectedListing.user.profile_name} 
-                        className="w-16 h-16 rounded-full object-cover mr-4"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-4">
-                        <span className="text-[8px] text-gray-500">{selectedListing.user.profile_name}</span>
-                      </div>
-                    )}
+                  {selectedListing.user && selectedListing.user.propic ? (
+                    <img 
+                      src={typeof selectedListing.user.propic === 'string' 
+                        ? `${backendUrl}${selectedListing.user.propic}` 
+                        : URL.createObjectURL(selectedListing.user.propic)}
+                      alt={selectedListing.user.profile_name} 
+                      className="w-16 h-16 rounded-full object-cover mr-4"
+                      onError={(e) => {
+                        e.currentTarget.src = NoImage;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                      <span className="text-sm text-gray-500">{selectedListing.user?.profile_name || 'User'}</span>
+                    </div>
+                  )}
                     <div>
                       <p className="font-semibold text-lg">{selectedListing.user.profile_name}</p>
                       <p className="text-gray-600">{selectedListing.user.real_name}</p>

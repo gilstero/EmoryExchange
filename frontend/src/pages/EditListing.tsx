@@ -92,7 +92,13 @@ export default function AddListing() {
         const fetchListing = async () => {
           try {
             setIsLoading(true);
-            const response = await api.get(`/api/auth/listingprofile/${id}`);
+            const response = await api.get(`/api/auth/singlelisting/${id}/`)
+
+            // const response = await api.get(`/api/auth/singlelisting/`, {
+            //   params: {
+            //     id: id
+            //   }
+            // })
 
             console.log(response.data)
 
@@ -133,7 +139,7 @@ export default function AddListing() {
           }
           
           // Send the update request
-          const response = await api.put(`/api/auth/listing/${id}/`, formData, {
+          const response = await api.patch(`/api/auth/singlelisting/${id}/`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             },
@@ -155,7 +161,7 @@ export default function AddListing() {
         if (window.confirm("Are you sure you want to delete this listing? This action cannot be undone.")) {
           try {
             setIsLoading(true)
-            await api.delete(`/api/auth/listing/${id}/`)
+            await api.delete(`/api/auth/singlelisting/${id}/`)
             setSuccessMessage("Listing deleted successfully!")
             
             navigate('/profile')
