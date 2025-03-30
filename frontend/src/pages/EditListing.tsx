@@ -243,6 +243,7 @@ export default function AddListing() {
                     <option value="moving-help">Moving Help</option>
                     <option value="schoolsupp">School Supplies</option>
                     <option value="electronics">Electronics</option>
+                    <option value="clothing">Clothing</option>
                   </select>
                 </div>
                 

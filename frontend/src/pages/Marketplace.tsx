@@ -90,9 +90,14 @@ export default function Marketplace() {
           <option value="">All Categories</option>
           <option value="tutoring">Tutoring</option>
           <option value="careercoach">Career Coaching</option>
-          <option value="moving-help">Moving Help</option>
+          <option value="moving">Moving Help</option>
           <option value="schoolsupp">School Supplies</option>
           <option value="electronics">Electronics</option>
+          <option value="free">Free</option>
+          <option value="transport">Transport</option>
+          <option value="service">Service</option>
+          <option value="electronics">Electronics</option>
+          <option value="clothing">Clothing</option>
         </select>
       </div>
 

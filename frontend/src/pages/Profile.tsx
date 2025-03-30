@@ -79,8 +79,8 @@ export default function Profile() {
     <div className="container mx-auto px-4 py-8 bg-[#efefee]">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Sidebar */}
-        <div className="md:col-span-1 bg-white p-6 shadow-md rounded-lg flex flex-col gap-6 items-center">
-        <img 
+        <div className="md:col-span-1 bg-white p-6 shadow-md rounded-lg flex flex-col gap-6 items-center max-h-[40%]">
+          <img 
             src={pfp} 
             alt="Profile" 
             style={{ width: "150px", borderRadius: "50%" }} 
@@ -113,7 +113,7 @@ export default function Profile() {
                   <div className="flex justify-center">
                     <img 
                       src={`${backendUrl}${listing.img}`}
-                      className="w-50 self-center object-cover"
+                      className="w-50 self-center object-cover mb-2"
                     />
                   </div>
                   <p className="text-gray-700 mb-2 line-clamp-3">{listing.description}</p>
