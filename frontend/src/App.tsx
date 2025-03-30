@@ -12,6 +12,7 @@ import NotFound from './pages/NotFound'
 import Profile from './pages/Profile'
 import AddListing from './pages/AddListing'
 import FinishProfile from './pages/EditProfile'
+import EditListing from './pages/EditListing'
 
 function RegisterAndLogout() {
   localStorage.clear()
@@ -62,6 +63,14 @@ function App() {
           element={
             <ProtectedRoute>
               <FinishProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/edit-listing/:id" 
+          element={
+            <ProtectedRoute>
+              <EditListing />
             </ProtectedRoute>
           }
         />

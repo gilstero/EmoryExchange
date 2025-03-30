@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 import MarketPlaceNav from '../components/MarketPlaceNav';
+import NoImage from '../assets/noimage.png'
 
 interface Listing {
   id: number;
@@ -11,6 +12,7 @@ interface Listing {
   amount: number;
   status: string;
   ldate: string | Date;
+  img: File;
 }
 
 interface User {
@@ -19,11 +21,13 @@ interface User {
   password: string;
   phone_num: string;
   profile_name: string;
-  propic: string;
+  propic: File;
   real_name: string
 }
 
 export default function Marketplace() {
+  const backendUrl = import.meta.env.VITE_API_URL
+
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
   const [listings, setListings] = useState<Listing[]>([])
@@ -94,20 +98,25 @@ export default function Marketplace() {
 
       <div className="mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-            {filteredListings.length > 0 ? (
+            {filteredListings.length > 0 && (
               filteredListings.map((listing) => (
               <div
                 key={listing.id}
-                className="bg-white shadow-md rounded-lg p-6 flex flex-col items-start cursor-pointer"
+                className="bg-white shadow-md rounded-lg p-6 flex flex-col cursor-pointer gap-2"
                 onClick={() => handleListingClick(listing)}
               >
                 <h3 className="text-xl font-bold text-[#0c2b9c] mb-2 text-center w-full">
                   {listing.title}
                 </h3>
-                <p className="text-gray-700 mb-2">{listing.description}</p>
-                <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm">
-                  {listing.tag}
-                </span>
+                <div className="flex justify-center">
+                  <img 
+                    src={listing.img ? `${backendUrl}${listing.img}` : NoImage}
+                    className="w-50 self-center object-cover"
+                  />
+                </div>
+                <p className="text-gray-700 mb-2 ">{listing.description}</p>
+                <p className="font-semibold"> Tag: <span className="text-blue-600 text-md w-auto">{listing.tag}</span></p>
+                
                 <p className="mt-2 font-semibold">Amount: ${listing.amount}</p>
                 <p className={`mt-1 ${listing.status === "live" ? "text-green-600" : "text-red-600"}`}>
                   Status: {listing.status}
@@ -115,8 +124,9 @@ export default function Marketplace() {
                 <p className="mt-2 font-semibold">{new Date(listing.ldate).toLocaleDateString()}</p>
               </div>
             ))
-            ) : <div className="text-center text-xl">No Listings Found</div>}
+            )}
           </div>
+          {filteredListings.length === 0 && <div className="text-center text-xl">No Listings Found</div>}
         </div>
 
         {isOpen && selectedListing && (
@@ -136,7 +146,7 @@ export default function Marketplace() {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Listing Details</h3>
                   <p className="mb-2"><span className="font-medium">Description:</span> {selectedListing.description}</p>
-                  <p className="mb-2"><span className="font-medium">Category:</span> <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm">{selectedListing.tag}</span></p>
+                  <p className="mb-2"><span className="font-medium">Tag:</span> <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-sm">{selectedListing.tag}</span></p>
                   <p className="mb-2"><span className="font-medium">Amount:</span> ${selectedListing.amount}</p>
                   <p className="mb-2">
                     <span className="font-medium">Status:</span> 
@@ -152,7 +162,7 @@ export default function Marketplace() {
                   <div className="flex items-center mb-4">
                     {selectedListing.user.propic ? (
                       <img 
-                        src={selectedListing.user.propic} 
+                        src={`${backendUrl}${selectedListing.user.propic}`} 
                         alt={selectedListing.user.profile_name} 
                         className="w-16 h-16 rounded-full object-cover mr-4"
                       />
