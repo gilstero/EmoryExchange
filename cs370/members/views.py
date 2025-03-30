@@ -389,10 +389,23 @@ class NameFromListing(APIView):
         except Listing.DoesNotExist:
             return Response({"error": "Listing not found or unauthorized"}, status=404)
         
-        
+class SingleListing(APIView):
+    permission_classes = (IsAuthenticated,)
 
+    def get(self, request):
+        user = request.user
+        target_listing = request.data.get("id")
 
+        if not target_listing:
+            return Response({"error": "Listing ID is required."}, status=400)
         
+        try:
+            listing = Listing.objects.get(id=target_listing)
+        except:
+            return Response({"error": "Listing not found."}, status=404)
+
+        serializer = ListingSerializer(listing)
+        return Response(serializer.data, status=200)     
 
 def control_page(request):
     return render(request, "home.html")
