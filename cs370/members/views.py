@@ -18,6 +18,7 @@ from . models import *
 from . serializer import *
 import os
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.db.models import Q
 
 class UserView(APIView):
     # retrive the info for the table User
@@ -120,44 +121,85 @@ class SendMessage(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        # add implementation to not have to give all of the information
+        user = request.user
 
-        serializer = MessageSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        recipient = request.data.get("user_id_2")
+        message = request.data.get("message")
+
+        if not recipient or not message:
+            return Response({"error": "Recipient ID and message are required"}, status=400)
+        
+        try:
+            pass
+        except:
+            return Response({"error": "Recipient not found"}, status=400)
+        
+        message = Message.objects.create(user_id_1=user, user_id_2=recipient, message=message)
+        serializer = MessageSerializer(message)
+
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-
+        
 class MessageView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        output = [{"user_id_1": message.user_id_1,
-                   "user_id_2": message.user_id_2,
-                   "date": message.date,
-                   "message": message.message}
-                  for message in Message.objects.all()]
-        return Response(output)
-        
-        
-    # def patch(self, request, user_id_1, user_id_2, date):
-    #     try:
-    #         message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
-    #     except:
-    #         return Response({"error": "Message not found"}, status=404)
 
-    #     serializer = MessageSerializer(message, data=request.data)
-    #     if serializer.is_valid(raise_exception=True):
-    #         serializer.save()
-    #         return Response(serializer.data)
+        user = request.user
 
-    # def delete(self, request, user_id_1, user_id_2, date):
-    #     try:
-    #         message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
-    #     except:
-    #         return Response({"error": "Message not found"}, status=404)
+        messages = Message.objects.filter(Q(user_id_1=user) | Q(user_id_2=user))
+        serialized_messages = MessageSerializer(messages, many=True)
+
+        return Response(serialized_messages.data)
+    
+class MessageEdit(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def patch(self, request):
+        user = request.user
+        data = request.data
+
+        user_id_1 = data.get("user_id_1")
+        user_id_2 = data.get("user_id_2")
+        date = data.get("date")
+
+        try:
+            message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+
+            if message.user_id_1 != user:
+                return Response({"error": "Message requested was not sent by user"}, status=status.HTTP_403_FORBIDDEN)
+            
+        except:
+            return Response({"error": "Message not found"}, status=404)
+
+        serializer = MessageSerializer(message, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-    #     message.delete()
-    #     return Response({"message": "Message deleted successfully"}, status=204)
+    def delete(self, request):
+
+        user = request.user
+        data = request.data
+
+        user_id_1 = data.get("user_id_1")
+        user_id_2 = data.get("user_id_2")
+        date = data.get("date")
+
+        try:
+            message = Message.objects.get(user_id_1=user_id_1, user_id_2=user_id_2, date=date)
+
+            if message.user_id_1 != user:
+                return Response({"error": "Message requested was not sent by user"}, status=status.HTTP_403_FORBIDDEN)
+            
+            message.delete()
+            return Response({"message": "Message deleted successfully."}, status=200)
+
+        except:
+            return Response({"error": "Message not found"}, status=404)
 
 class RideView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -376,6 +418,38 @@ class ListingViewPublic(APIView):
             output.append(listing_data)
     
         return Response(output)
+
+# returns the name and id of a listing through the listing id
+class NameFromListing(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        data = request.data
+
+        lisitingid = data.get("id")
+
+        try:
+            pass
+        except Listing.DoesNotExist:
+            return Response({"error": "Listing not found or unauthorized"}, status=404)
+        
+class SingleListing(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        target_listing = request.data.get("id")
+
+        if not target_listing:
+            return Response({"error": "Listing ID is required."}, status=400)
+        
+        try:
+            listing = Listing.objects.get(id=target_listing)
+        except:
+            return Response({"error": "Listing not found."}, status=404)
+
+        serializer = ListingSerializer(listing)
+        return Response(serializer.data, status=200)     
 
 def control_page(request):
     return render(request, "home.html")
