@@ -37,7 +37,7 @@ export default function Marketplace() {
   const fetchListings = () => {
     api.get('/api/auth/listing/')
         .then(response => {
-            console.log(response)
+            // console.log(response)
             setListings(response.data)
         })
         .catch(error => {
@@ -98,6 +98,8 @@ export default function Marketplace() {
           <option value="service">Service</option>
           <option value="electronics">Electronics</option>
           <option value="clothing">Clothing</option>
+          <option value="researchassist">Research Assistance</option>
+          <option value="misc">Miscellaneous</option>
         </select>
       </div>
 
@@ -120,7 +122,7 @@ export default function Marketplace() {
                       ? `${backendUrl}${listing.img}` 
                       : URL.createObjectURL(listing.img)
                   ) : NoImage}
-                  className="w-50 self-center object-cover"
+                  className="w-50 h-50 self-center object-cover"
                   onError={(e) => {
                     e.currentTarget.src = NoImage;
                   }}

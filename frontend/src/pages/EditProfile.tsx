@@ -21,7 +21,7 @@ export default function EditProfile() {
             const response = await api.get('/api/auth/user/')
             const userData = response.data
             
-            console.log(userData)
+            // console.log(userData)
             
             setProfileName(userData.profile_name || '')
             setRealName(userData.real_name || '')
@@ -87,17 +87,9 @@ export default function EditProfile() {
             console.log(profileData)
             
             // Log FormData contents for debugging
-            for (let [key, value] of profileData.entries()) {
-                console.log(`${key}: ${value}`)
-            }
-    
-            // const response = await api.patch('/api/auth/user/', {
-            //     profile_name: profileName,
-            //     real_name: realName,
-            //     email: email,
-            //     phone_num: phone,
-            //     propic: pfp
-            // })
+            // for (let [key, value] of profileData.entries()) {
+            //     console.log(`${key}: ${value}`)
+            // }
 
             const response = await api.patch('/api/auth/user/', profileData, {
                 headers: {
@@ -105,7 +97,7 @@ export default function EditProfile() {
                 }
             })
             
-            console.log("Profile updated:", response)
+            // console.log("Profile updated:", response)
             alert("Profile updated successfully!")
             navigate("/profile")
         } catch (error: any) {
@@ -163,7 +155,7 @@ export default function EditProfile() {
                             {pfpPreview ? (
                                 <img 
                                     src={pfpPreview} 
-                                    aria-Label="Profile Preview"
+                                    aria-label="Profile Preview"
                                     className="w-full h-full rounded-full object-cover"
                                 />
                             ) : (

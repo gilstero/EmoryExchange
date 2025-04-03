@@ -100,7 +100,7 @@ export default function AddListing() {
             //   }
             // })
 
-            console.log(response.data)
+            // console.log(response.data)
 
             setListing(response.data);
             if (response.data.img) {
@@ -145,6 +145,7 @@ export default function AddListing() {
             },
           })
           
+          alert("Listing updated successfully!")
           setSuccessMessage("Listing updated successfully!")
           setIsLoading(false);
           
@@ -240,10 +241,16 @@ export default function AddListing() {
                     <option value="">Select a category</option>
                     <option value="tutoring">Tutoring</option>
                     <option value="careercoach">Career Coaching</option>
-                    <option value="moving-help">Moving Help</option>
+                    <option value="moving">Moving Help</option>
                     <option value="schoolsupp">School Supplies</option>
                     <option value="electronics">Electronics</option>
+                    <option value="free">Free</option>
+                    <option value="transport">Transport</option>
+                    <option value="service">Service</option>
+                    <option value="electronics">Electronics</option>
                     <option value="clothing">Clothing</option>
+                    <option value="researchassist">Research Assistance</option>
+                    <option value="misc">Miscellaneous</option>
                   </select>
                 </div>
                 
@@ -270,9 +277,9 @@ export default function AddListing() {
                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    <option value="pending">Pending</option>
                     <option value="live">Live</option>
-                    <option value="completed">Completed</option>
+                    <option value="deleted">Deleted</option>
+                    <option value="archived">Archived</option>
                   </select>
                 </div>
                 
