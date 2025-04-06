@@ -123,23 +123,26 @@ class SendMessage(APIView):
     def post(self, request):
         user = request.user
 
-        recipient = request.data.get("user_id_2")
-        message = request.data.get("message")
+        recipient_id = request.data.get("user_id_2")
+        message_text = request.data.get("message")
 
-        if not recipient or not message:
+        if not recipient_id or not message_text:
             return Response({"error": "Recipient ID and message are required"}, status=400)
         
         try:
-            pass
-        except:
-            return Response({"error": "Recipient not found"}, status=400)
+            recipient = User.objects.get(id=recipient_id)
+        except User.DoesNotExist:
+            return Response({"error": "Recipient not found"}, status=404)
         
-        message = Message.objects.create(user_id_1=user, user_id_2=recipient, message=message)
+        message = Message.objects.create(
+            user_id_1=user, 
+            user_id_2=recipient, 
+            message=message_text
+        )
+        
         serializer = MessageSerializer(message)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        
+        return Response(serializer.data, status=201)
         
 class MessageView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -378,16 +381,20 @@ class ListingViewPublic(APIView):
 # returns the name and id of a listing through the listing id
 class NameFromListing(APIView):
     permission_classes = (IsAuthenticated,)
-
+        
     def get(self, request):
-        data = request.data
+        listingid = request.data.get('id')
 
-        lisitingid = data.get("id")
+        if not listingid:
+            return Response({'error': 'listing_id not provided.'}, status=400)
 
         try:
-            pass
+            listing = Listing.objects.get(id=listingid)
         except Listing.DoesNotExist:
-            return Response({"error": "Listing not found or unauthorized"}, status=404)
+            return Response({'error': 'Listing not found.'}, status=404)
+
+        owner = listing.user
+        return Response({'owner_name': owner.profile_name if owner.profile_name else owner.real_name or owner.email})
         
 class SingleListing(APIView):
     permission_classes = (IsAuthenticated,)
