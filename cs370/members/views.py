@@ -1,6 +1,6 @@
 # imports for views.py
 from django.utils import timezone
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password # password and reset functionality
@@ -25,13 +25,29 @@ class UserView(APIView):
     permission_classes = (IsAuthenticated,)
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     
-    def get(self, request):
+    # def get(self, request):
+    #     try:
+    #         user = request.user
+    #         serializer = UserSerializer(user)
+    #         return Response(serializer.data, status=200)
+    #     except:
+    #         return Response({"error": "User ID must be provided"}, status=400)
+
+    def get(self, request, user_id=None):
+        # If user_id is not provided, return the current authenticated user
+        if user_id is None:
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data, status=200)
+        
         try:
-            user = request.user
+            # Convert to int to ensure it's a valid ID
+            user_id = int(user_id)
+            # Get the requested user by ID
+            user = get_object_or_404(User, id=user_id)
             serializer = UserSerializer(user)
             return Response(serializer.data, status=200)
-        except:
-            return Response({"error": "User ID must be provided"}, status=400)
+        except ValueError:
+            return Response({"error": "Invalid user ID format"}, status=400)
     
     def post(self, request):
         serializer = UserSerializer(data={**request.data, **request.FILES})

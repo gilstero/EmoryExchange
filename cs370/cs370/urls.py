@@ -40,6 +40,7 @@ urlpatterns = [
 
     #user API url private
     path('api/auth/user/', UserView.as_view(), name="user"),
+    path('api/auth/user/<int:user_id>/', UserView.as_view(), name="user_by_id"),
 
     #transaction API url
     path('api/auth/transaction/', TransactionView.as_view(), name="transaction"),
