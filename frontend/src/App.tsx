@@ -13,6 +13,7 @@ import Profile from './pages/Profile'
 import AddListing from './pages/AddListing'
 import FinishProfile from './pages/EditProfile'
 import EditListing from './pages/EditListing'
+import Messages from './pages/Messages'
 
 function RegisterAndLogout() {
   localStorage.clear()
@@ -71,6 +72,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EditListing />
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/messages" 
+          element={
+            <ProtectedRoute>
+              <Messages />
             </ProtectedRoute>
           }
         />

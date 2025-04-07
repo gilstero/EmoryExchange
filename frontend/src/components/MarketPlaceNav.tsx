@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import api from '../api'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faUser, faStore, faGear} from "@fortawesome/free-solid-svg-icons"
+import { faUser, faStore, faGear, faEnvelope } from "@fortawesome/free-solid-svg-icons"
 
 export default function MarketPlaceNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -54,23 +54,26 @@ export default function MarketPlaceNav() {
             </button>
 
             {/* Desktop navigation */}
-            <div className="hidden md:flex items-center sm:justify-evenly align-middle gap-4 font-semibold">
-                <Link to="/marketplace" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg transition-colors" aria-label="Marketplace">
+            <div className="hidden md:flex items-center sm:justify-evenly align-middle gap-4 font-semibold text-lg">
+                <Link to="/marketplace" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer transition-colors" aria-label="Marketplace">
                     <FontAwesomeIcon icon={faStore} /> Marketplace
                 </Link>
-                <Link to="/profile" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg transition-colors" aria-label="Profile">
+                <Link to="/profile" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer transition-colors" aria-label="Profile">
                     <FontAwesomeIcon icon={faUser} /> Profile
                 </Link>
-                <Link to="/edit-profile" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg transition-colors" aria-label="Settings">
+                <Link to="/messages" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer transition-colors" aria-label="Messages">
+                  <FontAwesomeIcon icon={faEnvelope} /> Messages
+                </Link>
+                <Link to="/edit-profile" className="bg-[#0c2b9c] hover:bg-[#0a2283] text-slate-50 px-4 py-2 rounded-lg cursor-pointer transition-colors" aria-label="Settings">
                   <FontAwesomeIcon icon={faGear} /> Settings
                 </Link>
-                <button className="text-[#0c2b9c] hover:bg-gray-200 px-4 py-2 rounded-lg cursor-pointer text-lg transition-colors" aria-label="Logout" onClick={handleLogout}>
+                <button className="text-[#0c2b9c] hover:bg-gray-200 px-4 py-2 rounded-lg cursor-pointer transition-colors" aria-label="Logout" onClick={handleLogout}>
                     Logout
                 </button>
             </div>
 
             {/* Mobile navigation */}
-            <div className={`absolute top-full right-0 left-0 bg-[#efefee] shadow-md transition-all duration-300 mt-2 md:hidden ${isMenuOpen ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+            <div className={`absolute top-full right-0 left-0 bg-[#efefee] shadow-md transition-all duration-300 mt-2 md:hidden ${isMenuOpen ? 'max-h-100 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                 <div className="flex flex-col p-4 gap-3">
                     <Link 
                       to="/marketplace" 
@@ -87,6 +90,14 @@ export default function MarketPlaceNav() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                         Profile
+                    </Link>
+                    <Link 
+                      to="/messages" 
+                      className="bg-[#0c2b9c] text-slate-50 px-4 py-2 rounded-lg cursor-pointer text-lg text-center" 
+                      aria-label="Messages"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                        Messages
                     </Link>
                     <Link 
                       to="/edit-profile" 

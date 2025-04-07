@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../api';
 import MarketPlaceNav from '../components/MarketPlaceNav';
 import NoImage from '../assets/noimage.png'
+import { useNavigate } from 'react-router-dom';
 
 interface Listing {
   id: number;
@@ -28,11 +29,44 @@ interface User {
 export default function Marketplace() {
   const backendUrl = import.meta.env.VITE_API_URL
 
+  const [user, setUser] = useState<User>({
+    id: 0,
+    email: '',
+    password: '',
+    phone_num: '',
+    profile_name: '',
+    propic: null as unknown as File,
+    real_name: ''
+  })
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
   const [listings, setListings] = useState<Listing[]>([])
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  const [message, setMessage] = useState("")
+
+  const navigate = useNavigate()
+
+  const sendMessage = async (e: any) => {
+    e.preventDefault()
+    
+    try {
+      const res = await api.post("/api/auth/messagesend/", 
+        {
+          user_1: user.id,
+          user_2: selectedListing?.user.id,
+          message: message
+        }
+      )
+      console.log("Response: ", res)
+      alert("Sent!")
+      navigate("/marketplace")
+
+    } catch (error: any) {
+        console.error("Message send error:", error)
+    }
+  }
 
   const fetchListings = () => {
     api.get('/api/auth/listing/')
@@ -44,9 +78,20 @@ export default function Marketplace() {
             console.error("Error fetching listings:", error)
         })
   }
+  const fetchUser = () => {
+    api.get('/api/auth/user/')
+        .then(response => {
+            // console.log("user", response)
+            setUser(response.data)
+        })
+        .catch(error => {
+            console.error("Error fetching user:", error)
+        })
+  }
 
   useEffect(() => {
     fetchListings()
+    fetchUser()
   }, []);
 
   const handleListingClick = (listing: Listing) => {
@@ -144,7 +189,7 @@ export default function Marketplace() {
         </div>
 
         {isOpen && selectedListing && (
-          <div className="fixed inset-0 bg-[rgba(239,239,238,0.8)] flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-[rgba(239,239,238,0.8)] flex items-center justify-center z-[101] p-4">
             <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-screen overflow-y-auto">
               <div className="flex justify-between items-start">
                 <h2 className="text-2xl font-bold text-[#0c2b9c]">{selectedListing.title}</h2>
@@ -196,18 +241,44 @@ export default function Marketplace() {
                     </div>
                   </div>
                   <p className="mb-2"><span className="font-medium">Email:</span> {selectedListing.user.email}</p>
-                  <p className="mb-2"><span className="font-medium">Phone:</span> {selectedListing.user.phone_num}</p>
+                  <p className="mb-2"><span className="font-medium">Phone:</span> ({selectedListing.user.phone_num.slice(0,3)}) {selectedListing.user.phone_num.slice(3,6)}-{selectedListing.user.phone_num.slice(6,10)}</p>
                 </div>
               </div>
-              
-              <div className="mt-6 flex justify-end">
+
+              {/* <div className="mt-6 flex justify-end">
                 <a
                   href={`mailto:${selectedListing.user.email}`}
                   className="bg-[#0c2b9c] hover:bg-blue-800 text-white px-4 py-2 rounded-lg cursor-pointer"
                 >
                   Contact Seller
                 </a>
-              </div>
+              </div> */}
+
+              {selectedListing.user.id !== user.id && (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">Contact Seller</h3>
+
+                  <div className="flex flex-col justify-center gap-2">
+                    <textarea 
+                      placeholder="Type your message here..."
+                      value={message}
+                      name="Message"
+                      className="border border-gray-500 rounded-lg p-2 mb-2"
+                      onChange={(e) => setMessage(e.target.value)}
+                      rows={6}
+                      cols={40}
+                    />
+
+                    <button
+                      type="submit"
+                      onClick={sendMessage}
+                      className="bg-[#0c2b9c] hover:bg-blue-800 text-white px-4 py-2 rounded-lg cursor-pointer"
+                    >
+                      Send
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

@@ -118,7 +118,7 @@ export default function Profile() {
                           ? `${backendUrl}${listing.img}` 
                           : URL.createObjectURL(listing.img)
                       ) : NoImage}
-                      className="w-50 h-50 self-center object-cover"
+                      className="w-50 h-50 self-center object-cover mb-2"
                       onError={(e) => {
                         e.currentTarget.src = NoImage;
                       }}
