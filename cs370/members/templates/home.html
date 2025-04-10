@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Page</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'members/style.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'members/bird.png' %}">
+    <style>
+        body {
+            background: url("{% static 'members/eagle_exchange.png' %}") no-repeat center center fixed;
+            background-size: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loader-container" id="loader">
+        <div class="newtons-cradle">
+            <div class="newtons-cradle__dot"></div>
+            <div class="newtons-cradle__dot"></div>
+            <div class="newtons-cradle__dot"></div>
+            <div class="newtons-cradle__dot"></div>
+        </div>
+    </div>
+    <div class="container">
+        <h1>EAGLE EXCHANGE CONTROL PAGE</h1>
+        <p>Welcome to the control panel. Use the buttons below to navigate.</p>
+
+        <div class="button-container">
+            <a href="{% url 'admin:index' %}" class="btn">Admin Panel</a>
+            <a href="{% url 'user' %}" class="btn">User Management</a>
+            <a href="{% url 'transaction' %}" class="btn">Transaction History</a>
+        </div>
+        
+        <div class="button-container">
+            <a href="{% url 'ride' %}" class="btn">Ride Management</a>
+            <a href="{% url 'listingp' %}" class="btn">Listing History</a>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const links = document.querySelectorAll(".link");
+            const loader = document.getElementById("loader");
+
+            links.forEach(link => {
+                link.addEventListener("click", function (event) {
+                    event.preventDefault(); // Stop immediate navigation
+                    loader.classList.add("active"); // Show loader with fade-in effect
+
+                    setTimeout(() => {
+                        window.location.href = link.href; // Redirect after delay
+                    }, 4000); 
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

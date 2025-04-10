@@ -1,0 +1,49 @@
+OFFICIAL DOCUMENTATION FOR EAGLE EXCHANGE BACKEND
+--------------------------------------------------
+
+cs370/cs370/urls.py:
+This file defines all API endpoints available in the project. Some routes require authentication and are marked with the 'auth' tag in the URL path.
+Endpoints with the 'auth' prefix require a valid Bearer token passed in the request header. These tokens are issued with a 1-day expiration (time delta).
+
+For a full list of endpoints and their mappings, refer to the urls.py file.
+
+cs370/cs370/settings.py:
+The backend is configured as a standard Django project with minimal third-party packages.
+Before starting the backend server, you must apply database migrations:
+
+    cd cs370
+    python manage.py makemigrations
+    python manage.py migrate
+
+This ensures all models are properly created and synced with the database.
+
+cs370/members/admin.py:
+This file provides Django admin interface configurations, allowing admins to manage the SQLite database through a visual UI without needing to send POST requests.
+
+To access the admin panel, create a superuser:
+
+    python manage.py createsuperuser
+
+Follow the prompts to enter your credentials.
+
+cs370/members/models.py:
+This file defines all database models for the project.
+Implemented models:
+- User
+- Listing
+- Message
+
+The Ride model is still a work in progress and may not fully represent its intended functionality.
+
+cs370/members/serializer.py:
+Serializers are kept minimal and focused. JSON and form-data payloads are handled using straightforward serializer definitions that convert data to and from Django models.
+
+cs370/members/views.py:
+This file contains the backend logic for all view functions and class-based views, corresponding to each endpoint.
+Implemented views include:
+- Login/logout
+- Listing operations (create, update, fetch)
+- Profile-related views
+- Messaging features
+
+View-specific explanations can be found in the in-file comments.
