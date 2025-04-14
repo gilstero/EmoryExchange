@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password # password and reset functionality
-from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
@@ -19,6 +19,7 @@ from . serializer import *
 import os
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.db.models import Q
+import six
 
 # All relavent imformation for this page was taken from the Django docs and Rest Framework site on APIViews
 # please refer to those websites for further information
@@ -578,13 +579,42 @@ class RegistrationView(APIView):
         serializer = UserSerializer(data=request.data, partial=True)
 
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
+            self.send_verification_email(user)
+
             return Response(
                 {"success": True, "message": "You are now registered!"},
                 status=status.HTTP_201_CREATED,
             )
 
         return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def send_verification_email(self, user):
+        token = email_verification_token.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        verification_url = f"{settings.SITE_URL}/verify/{uid}/{token}/"
+        
+        subject = "Verify your email address"
+        message = f"""
+        Hi there,
+        
+        Thank you for registering. Please click the link below to verify your email address:
+        
+        {verification_url}
+        
+        If you did not register on our site, please ignore this email.
+        
+        Best regards,
+        Your Website Team
+        """
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
 
 # loginview requires a email and password
 # returns and JWT refresh and auth token
@@ -607,6 +637,12 @@ class LoginView(APIView):
             return Response(
                 {"success": False, "message": "Invalid login credentials!"},
                 status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not user.auth:
+            return Response(
+                {"success": False, "message": "Please verify your email before logging in."},
+                status=status.HTTP_403_FORBIDDEN
             )
 
         # Generate JWT tokens
@@ -653,3 +689,34 @@ class LogoutView(APIView):
                 {"success": False, "message": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class EmailVerificationTokenGenerator(PasswordResetTokenGenerator):
+    def _make_hash_value(self, user, timestamp):
+        return (
+            six.text_type(user.pk) + six.text_type(timestamp) + six.text_type(user.auth)
+        )
+
+email_verification_token = EmailVerificationTokenGenerator()
+
+class VerifyEmailView(APIView):
+    permission_classes = (AllowAny,)
+    
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+            
+        if user is not None and email_verification_token.check_token(user, token):
+            user.auth = True
+            user.save()
+            return Response({
+                "success": True,
+                "message": "Email verification successful. You can now log in."
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "success": False,
+                "message": "Email verification failed."
+            }, status=status.HTTP_400_BAD_REQUEST)

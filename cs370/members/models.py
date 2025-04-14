@@ -35,6 +35,7 @@ class User(AbstractUser):
     phone_num = models.CharField(max_length=20, blank=True, null=True)
     propic = models.ImageField(upload_to='profile_pic/',null=True, blank=True)
     last_login = models.DateTimeField(null=True, blank=True)
+    auth = models.BooleanField(null=False, default=False)
 
     USERNAME_FIELD = 'email' 
     REQUIRED_FIELDS = [] 
