@@ -13,7 +13,8 @@
 - [Features](#features)  
 - [Goals and Mission](#goals-and-mission)  
 - [How It Works](#how-it-works)  
-- [Technologies Used](#technologies-used)  
+- [Technologies Used](#technologies-used)
+- [Dependencies](#dependencies-and-dependency-management)
 - [Future Development Plans](#future-development-plans)  
 - [Contact](#contact)  
 
@@ -23,13 +24,11 @@
 
 ### **Tutoring Services**  
 - Students can sign up as tutors or seek tutoring help beyond what Emory University provides.  
-- Reviews and ratings help identify top tutors.  
-- Verified tutors can earn money for their services.  
+- Verified tutors can offer their services, either paid or pro bono.  
 
 ### **Marketplace Exchange**  
 - Buy, sell, or trade items exclusively within the Emory community.  
 - Categories include textbooks, furniture, electronics, and more.  
-- In-app messaging and payment integration for secure transactions.  
 
 ### **Service Sharing**  
 - Post and find services such as ridesharing, tech assistance, and more.  
@@ -51,7 +50,7 @@ Emory Exchange strives to:
 
 1. **Account Creation**  
    - Sign up using your Emory University email to verify community membership.  
-   - Create a profile with optional details like major, interests, and skills.  
+   - Create a profile with an optional profile picture.  
 
 2. **Browsing and Posting**  
    - Search for tutoring services, marketplace items, or offered/requested services.  
@@ -90,12 +89,12 @@ If one desires to run the backend, run 'python manage.py runserver' in your term
 
 ---
 
-## **Dependencies & Dependency Management**  
+## **Dependencies and Dependency Management**  
 
 - **Required dependencies**: For the backend app, required dependencies can be found in the requirements.txt file.
 - Creating a virtual environment to manage these dependencies is recommended. CD to the root directory of the project and follow these instructions:
 - Run python3 -m venv <myenvpath> in your terminal
-- Make sure your working directory contains your venv file and then run one of the following.
+- Make sure your working directory contains your venv file and then run one of the following:
 - Mac: run source venv/bin/activate
 - Windows: run venv\Scripts\activate
 - Now, install all of the dependencies in the requirements.txt file by running pip install -r /path/to/requirements.txt
