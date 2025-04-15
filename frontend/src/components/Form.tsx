@@ -28,8 +28,8 @@ function Form({route, method}: FormProps) {
             try {
                 const res = await api.post(route, {email, password})
                 console.log("Response: ", res)
-                localStorage.setItem(ACCESS_TOKEN, res.data.access_token)
-                localStorage.setItem(REFRESH_TOKEN, res.data.refresh_token)
+                sessionStorage.setItem(ACCESS_TOKEN, res.data.access_token)
+                sessionStorage.setItem(REFRESH_TOKEN, res.data.refresh_token)
                 navigate("/marketplace")
 
             } catch (error) {

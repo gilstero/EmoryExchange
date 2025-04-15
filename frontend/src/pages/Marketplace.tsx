@@ -38,6 +38,7 @@ export default function Marketplace() {
     propic: null as unknown as File,
     real_name: ''
   })
+
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
   const [listings, setListings] = useState<Listing[]>([])
@@ -52,10 +53,11 @@ export default function Marketplace() {
     e.preventDefault()
     
     try {
+      console.log(message)
       const res = await api.post("/api/auth/messagesend/", 
         {
-          user_1: user.id,
-          user_2: selectedListing?.user.id,
+          user_id_1: user.id,
+          user_id_2: selectedListing?.user.id,
           message: message
         }
       )
@@ -78,6 +80,7 @@ export default function Marketplace() {
             console.error("Error fetching listings:", error)
         })
   }
+  
   const fetchUser = () => {
     api.get('/api/auth/user/')
         .then(response => {

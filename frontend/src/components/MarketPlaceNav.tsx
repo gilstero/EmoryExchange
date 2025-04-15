@@ -13,7 +13,7 @@ export default function MarketPlaceNav() {
     e.preventDefault()
 
     try {
-        const refreshToken = localStorage.getItem(REFRESH_TOKEN)
+        const refreshToken = sessionStorage.getItem(REFRESH_TOKEN)
         
         if (!refreshToken) {
             throw new Error("No refresh token")
@@ -21,8 +21,8 @@ export default function MarketPlaceNav() {
 
         await api.post("/api/auth/logout/", { refresh_token: refreshToken })
 
-        localStorage.removeItem(ACCESS_TOKEN)
-        localStorage.removeItem(REFRESH_TOKEN)
+        sessionStorage.removeItem(ACCESS_TOKEN)
+        sessionStorage.removeItem(REFRESH_TOKEN)
 
         navigate("/")
     } catch (error) {

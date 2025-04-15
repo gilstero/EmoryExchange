@@ -16,7 +16,7 @@ export default function ProtectedRoute({children}: ProtectedRouteProps) {
     }, [])
 
     const refreshToken = async() => {
-        const refreshToken = localStorage.getItem(REFRESH_TOKEN)
+        const refreshToken = sessionStorage.getItem(REFRESH_TOKEN)
 
         console.log(refreshToken)
 
@@ -27,7 +27,7 @@ export default function ProtectedRoute({children}: ProtectedRouteProps) {
                 { headers: { 'Content-Type': 'application/json' }}
             )
             if (res.status === 200) {
-                localStorage.setItem(ACCESS_TOKEN, res.data.access_token)
+                sessionStorage.setItem(ACCESS_TOKEN, res.data.access_token)
                 setIsAuthorized(true)
             }
             else {
@@ -35,15 +35,15 @@ export default function ProtectedRoute({children}: ProtectedRouteProps) {
             }
         } catch (error) {
             console.log(error)
-            localStorage.removeItem(ACCESS_TOKEN)
-            localStorage.removeItem(REFRESH_TOKEN)
+            sessionStorage.removeItem(ACCESS_TOKEN)
+            sessionStorage.removeItem(REFRESH_TOKEN)
             setIsAuthorized(false)
             throw error
         }
     }
 
     const auth = async () => {
-        const token = localStorage.getItem(ACCESS_TOKEN)
+        const token = sessionStorage.getItem(ACCESS_TOKEN)
         if (!token) {
             setIsAuthorized(false)
             return
