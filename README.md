@@ -72,7 +72,7 @@ The frontend is a React and TypeScript application that is built out with Vite. 
 If one desires to run the frontend and see the current state of the website, first install the following packages: 
 'npm i --save @fortawesome/fontawesome-svg-core',
 'npm install --save @fortawesome/free-solid-svg-icons',
-'npm install --save @fortawesome/react-fontawesome'
+'npm install --save @fortawesome/react-fontawesome'.
 Then, run 'npm install', then 'npm run dev' in your terminal. Then navigate to the 'http://localhost:5173/' link and the UI interface should appear. The backend also needs to be running for the functionality of the frontend to work. From there, the function of the app is very self-explanatory, as users are able to register, log in, log out, navigate the marketplace, message with other users, and create and delete listings. 
 
 ---
