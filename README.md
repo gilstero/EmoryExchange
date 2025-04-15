@@ -67,7 +67,7 @@ Emory Exchange strives to:
 
 ## **Frontend**
 
-The frontend is a React and TypeScript application that is built out with Vite. It handles all features of the app related to accessibility. The src folder contains the majority creation of the frontend. In it exists a components folder with UI elements such as the navigation bar, footer, and individual listing cards. The pages folder holds full page views like Login, Signup, Account, and Marketplace, which show up based on the current URL. Routing is managed with React Router and stylistic design choices are handled with CSS. Vite ensures fast development and optimized build performance.
+The frontend is a React and TypeScript application that is built out with Vite. It handles all features of the app related to accessibility. The src folder contains the majority creation of the frontend. In it exists a components folder with UI elements such as the navigation bar, footer, and individual listing cards. The pages folder holds full page views like Login, Signup, Account, and Marketplace, which show up based on the current URL. Routing is managed with React Router and stylistic design choices are handled with Tailwind CSS. Vite ensures fast development and optimized build performance.
 
 If one desires to run the frontend and see the current state of the website, run 'npm install', then 'npm run dev' in your terminal. Then navigate to the 'http://localhost:5173/' link and the UI interface should appear. The backend also needs to be running for the functionality of the frontend to work. From there, the function of the app is very self-explanatory, as users are able to register, log in, log out, navigate the marketplace, message with other users, and create and delete listings. 
 
@@ -83,7 +83,7 @@ If one desires to run the backend, run 'python manage.py runserver' in your term
 
 ## **Technologies Used**  
 
-- **Frontend**: React.js, Tailwind CSS
+- **Frontend**: React.js, TypeScript, Tailwind CSS
 - **Backend**: Python/Django  
 - **Database**: Django SQLite Database 
 
