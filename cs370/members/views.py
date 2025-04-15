@@ -604,8 +604,8 @@ class RegistrationView(APIView):
         
         If you did not register on our site, please ignore this email.
         
-        Best regards,
-        Your Website Team
+        Best,
+        Eagle Exchange
         """
         
         send_mail(
