@@ -90,6 +90,18 @@ If one desires to run the backend, run 'python manage.py runserver' in your term
 
 ---
 
+## **Dependencies & Dependency Management**  
+
+- **Required dependencies**: For the backend app, required dependencies can be found in the requirements.txt file.
+- Creating a virtual environment to manage these dependencies is recommended. CD to the root directory of the project and follow these instructions:
+- Run python3 -m venv <myenvpath> in your terminal
+- Make sure your working directory contains your venv file and then run one of the following.
+- Mac: run source venv/bin/activate
+- Windows: run venv\Scripts\activate
+- Now, install all of the dependencies in the requirements.txt file by running pip install -r /path/to/requirements.txt
+
+---
+
 ## **Future Development Plans**  
 
 - **Mobile App**: Develop a native mobile app for easier access on the go.  
