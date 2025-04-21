@@ -19,7 +19,8 @@ from . serializer import *
 import os
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.db.models import Q
-import six
+# package for email verification
+# import six
 
 # All relavent imformation for this page was taken from the Django docs and Rest Framework site on APIViews
 # please refer to those websites for further information
@@ -635,7 +636,7 @@ class RegistrationView(APIView):
 
         if serializer.is_valid():
             user = serializer.save()
-            self.send_verification_email(user)
+            # self.send_verification_email(user)
 
             return Response(
                 {"success": True, "message": "You are now registered!"},
@@ -694,11 +695,11 @@ class LoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        if not user.auth:
-            return Response(
-                {"success": False, "message": "Please verify your email before logging in."},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        # if not user.auth:
+        #     return Response(
+        #         {"success": False, "message": "Please verify your email before logging in."},
+        #         status=status.HTTP_403_FORBIDDEN
+        #     )
 
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
@@ -745,15 +746,15 @@ class LogoutView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-class EmailVerificationTokenGenerator(PasswordResetTokenGenerator):
-    def _make_hash_value(self, user, timestamp):
-        return (
-            six.text_type(user.pk) + six.text_type(timestamp) + six.text_type(user.auth)
-        )
+# class EmailVerificationTokenGenerator(PasswordResetTokenGenerator):
+#     def _make_hash_value(self, user, timestamp):
+#         return (
+#             six.text_type(user.pk) + six.text_type(timestamp) + six.text_type(user.auth)
+#         )
 
-email_verification_token = EmailVerificationTokenGenerator()
+# email_verification_token = EmailVerificationTokenGenerator()
 
-class VerifyEmailView(APIView):
+# class VerifyEmailView(APIView):
     permission_classes = (AllowAny,)
     
     def get(self, request, uidb64, token):

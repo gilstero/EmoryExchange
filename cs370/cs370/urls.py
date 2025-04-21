@@ -94,7 +94,7 @@ urlpatterns = [
     path("forgotPassword/", ForgotPasswordView.as_view(), name="forgotPassword"),
     path("resetPassword/", ResetPasswordView.as_view(), name="resetPassword"),
 
-    path('verify/<str:uidb64>/<str:token>/', VerifyEmailView.as_view(), name='verify_email'),
+    # path('verify/<str:uidb64>/<str:token>/', VerifyEmailView.as_view(), name='verify_email'),
 ]
 
 # for accessing images
