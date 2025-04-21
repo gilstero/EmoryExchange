@@ -29,6 +29,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = ['id_1', 'id_2', 'amount', 'date', 
                   'user1_rating', 'user2_rating', 'user1_notes', 'user2_notes']
 
+# ride serializer just contains basic framework, no actual method was implemented to use this serializer
 class RideSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ride

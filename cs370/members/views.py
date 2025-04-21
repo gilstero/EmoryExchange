@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password # password and reset functionality
-from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
@@ -19,8 +19,17 @@ from . serializer import *
 import os
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.db.models import Q
+import six
+
+# All relavent imformation for this page was taken from the Django docs and Rest Framework site on APIViews
+# please refer to those websites for further information
 
 class UserView(APIView):
+    """
+    UserView \n
+    User view returns a users information to either edit (patch), add (post), delete, or retrieve (get). \n
+    Requries a JWT token.
+    """
     # retrive the info for the table User
     permission_classes = (IsAuthenticated,)
     parser_classes = (MultiPartParser, FormParser, JSONParser)
@@ -92,7 +101,12 @@ class UserView(APIView):
         user.delete()
         return Response({"message": "User deleted successfully"}, status=204)
 
+# pulls all transactions
+# also unimplemented
 class TransactionView(APIView):
+    """
+
+    """
     permission_classes = (IsAuthenticated,)
     def get(self, request):
         output = [{"user_id_1": output.id_1,
@@ -132,6 +146,7 @@ class TransactionView(APIView):
         transaction.delete()
         return Response({"message": "Transaction deleted successfully"}, status=204)
 
+# sends a message to a specified user
 class SendMessage(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -158,7 +173,8 @@ class SendMessage(APIView):
         serializer = MessageSerializer(message)
         
         return Response(serializer.data, status=201)
-        
+
+# views the messages with the time stamps by a user
 class MessageView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -171,6 +187,8 @@ class MessageView(APIView):
 
         return Response(serialized_messages.data)
     
+# edit message is a seperate request than message view
+# not implemented in the front end but allows a user to change their message
 class MessageEdit(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -219,6 +237,7 @@ class MessageEdit(APIView):
         except:
             return Response({"error": "Message not found"}, status=404)
 
+# unimplemented
 class RideView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self, request):
@@ -467,54 +486,9 @@ class SingleListing(APIView):
             return Response({"error": "Listing not found."}, status=404)
         
         serializer = ListingSerializer(listing)
-        return Response(serializer.data, status=200)
-    
-    def patch(self, request, listing_id):
-        try:
-            listing = Listing.objects.get(id=listing_id)
-        except:
-            return Response({"error": "Listing not found."}, status=404)
-        
-        # Check if the authenticated user is the owner of the listing
-        if request.user != listing.user:
-            return Response({"error": "You don't have permission to update this listing."}, status=403)
-        
-        # Partial update with patch
-        serializer = ListingSerializer(listing, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=200)
-        return Response(serializer.errors, status=400)
-    
-    def delete(self, request, listing_id):
-        try:
-            listing = Listing.objects.get(id=listing_id)
-        except:
-            return Response({"error": "Listing not found."}, status=404)
-        
-        # Check if the authenticated user is the owner of the listing
-        if request.user != listing.user:
-            return Response({"error": "You don't have permission to delete this listing."}, status=403)
-        
-        # Delete the listing
-        listing.delete()
-        return Response({"message": "Listing deleted successfully."}, status=204)
+        return Response(serializer.data, status=200)     
 
-    # def get(self, request):
-    #     user = request.user
-    #     target_listing = request.data.get("id")
-
-    #     if not target_listing:
-    #         return Response({"error": "Listing ID is required."}, status=400)
-        
-    #     try:
-    #         listing = Listing.objects.get(id=target_listing)
-    #     except:
-    #         return Response({"error": "Listing not found."}, status=404)
-
-    #     serializer = ListingSerializer(listing)
-    #     return Response(serializer.data, status=200)     
-
+# basic view request for the backend control page
 def control_page(request):
     return render(request, "home.html")
 
@@ -525,9 +499,7 @@ def control_page(request):
 URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 SALT = "8b4f6b2cc1868d75ef79e5cfb8779c11b6a374bf0fce05b485581bf4e1e25b96c8c2855015de8449"
 
-'''
-Forgot password view is currently not working
-'''
+# unimplemented
 class ForgotPasswordView(APIView):
     permission_classes = (AllowAny, )
     
@@ -578,6 +550,7 @@ class ForgotPasswordView(APIView):
             status=status.HTTP_200_OK
         )
 
+# unimplemented
 class ResetPasswordView(APIView):
     permission_classes = (AllowAny, )
     def post(self, request):
@@ -625,6 +598,8 @@ class ResetPasswordView(APIView):
             status=status.HTTP_200_OK
         )
 
+# registers a user to the database with auth=False
+# users must go to their email and autheticate to allow for further action
 class RegistrationView(APIView):
     permission_classes = (AllowAny, )
     def post(self, request):
@@ -659,7 +634,9 @@ class RegistrationView(APIView):
         serializer = UserSerializer(data=request.data, partial=True)
 
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
+            self.send_verification_email(user)
+
             return Response(
                 {"success": True, "message": "You are now registered!"},
                 status=status.HTTP_201_CREATED,
@@ -667,6 +644,35 @@ class RegistrationView(APIView):
 
         return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+    def send_verification_email(self, user):
+        token = email_verification_token.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        verification_url = f"{settings.SITE_URL}/verify/{uid}/{token}/"
+        
+        subject = "Verify your email address"
+        message = f"""
+        Hi there,
+        
+        Thank you for registering. Please click the link below to verify your email address:
+        
+        {verification_url}
+        
+        If you did not register on our site, please ignore this email.
+        
+        Best,
+        Eagle Exchange
+        """
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+
+# loginview requires a email and password
+# returns and JWT refresh and auth token
 class LoginView(APIView):
     permission_classes = (AllowAny, )
     def post(self, request):
@@ -687,6 +693,12 @@ class LoginView(APIView):
                 {"success": False, "message": "Invalid login credentials!"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        if not user.auth:
+            return Response(
+                {"success": False, "message": "Please verify your email before logging in."},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
@@ -700,6 +712,8 @@ class LoginView(APIView):
             "refresh_token": str(refresh)
         }, status=status.HTTP_200_OK)
 
+# logout view takens a refresh token and blacklists the token
+# token must be passed through a JSON file
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
@@ -730,3 +744,34 @@ class LogoutView(APIView):
                 {"success": False, "message": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class EmailVerificationTokenGenerator(PasswordResetTokenGenerator):
+    def _make_hash_value(self, user, timestamp):
+        return (
+            six.text_type(user.pk) + six.text_type(timestamp) + six.text_type(user.auth)
+        )
+
+email_verification_token = EmailVerificationTokenGenerator()
+
+class VerifyEmailView(APIView):
+    permission_classes = (AllowAny,)
+    
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+            
+        if user is not None and email_verification_token.check_token(user, token):
+            user.auth = True
+            user.save()
+            return Response({
+                "success": True,
+                "message": "Email verification successful. You can now log in."
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "success": False,
+                "message": "Email verification failed."
+            }, status=status.HTTP_400_BAD_REQUEST)

@@ -7,7 +7,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('id', 'profile_name', 'real_name', 'email', 'phone_num')
     search_fields = ('email', 'profile_name', 'real_name')
     list_filter = ('email', 'phone_num')
-    fields = ('profile_name', 'real_name', 'email', 'phone_num', 'password', 'propic')
+    fields = ('profile_name', 'real_name', 'email', 'phone_num', 'password', 'propic', 'auth')
 
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('id_1', 'id_2', 'amount', 'date', 'user1_rating', 'user2_rating')
