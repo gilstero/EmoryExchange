@@ -65,11 +65,25 @@ Emory Exchange strives to:
 
 ---
 
+## **Dependencies and Dependency Management**  
+
+- **Required dependencies**: For the backend app, required dependencies can be found in the requirements.txt file.
+- Creating a virtual environment to manage these dependencies is recommended. CD to the root directory of the project (cd EmoryExchange) and follow these instructions:
+- Run python3 -m venv \<myenvpath\> in your terminal (example envpath: .venv)
+- Make sure your working directory contains your venv file and then run one of the following:
+- Mac: run source \<myenvpath\>/bin/activate
+- Windows: run \<myenvpath\>\Scripts\activate
+- Now, install all of the dependencies in the requirements.txt file by running pip install -r /path/to/requirements.txt
+- Finally run python manage.py makemigrations -\> python manage.py migrate
+- To run the server, python manage.py runserver
+
+---
+
 ## **Frontend**
 
 The frontend is a React and TypeScript application that is built out with Vite. It handles all features of the app related to accessibility. The src folder contains the majority creation of the frontend. In it exists a components folder with UI elements such as the navigation bar, footer, and individual listing cards. The pages folder holds full page views like Login, Signup, Account, and Marketplace, which show up based on the current URL. Routing is managed with React Router and stylistic design choices are handled with Tailwind CSS. Vite ensures fast development and optimized build performance.
 
-If one desires to run the frontend and see the current state of the website, first install the following packages: 
+If one desires to run the frontend and see the current state of the website, cd frontend in your terminal and install the following packages: 
 'npm i --save @fortawesome/fontawesome-svg-core',
 'npm install --save @fortawesome/free-solid-svg-icons',
 'npm install --save @fortawesome/react-fontawesome'.
@@ -81,7 +95,7 @@ Then, run 'npm install', then 'npm run dev' in your terminal. Then navigate to t
 
 The backend is a Django REST framework application that creates and maintains the API with endpoints called by the frontend app. The backend is located in the cs370/ folder. It includes basic settings, routing, and deployment entry points (asgi.py, wsgi.py). The members/ app contains the core functionality of the backend. Within it is important files such as models.py which defines the database schema. The database holds user, listing, transaction, token, and message tables to store important imformation. views.py handles API logic to pull information from the database, serializer.py converts models to JSON form, and urls.py is used to route each page. It also includes migrations/ for database versioning, templates/ for HTML rendering, and static/ for files such as images, CSS, and JS. The backend connects to a local SQLite database (db.sqlite3). When someone interacting with the UI interacts with a feature such as sign up, log in, view profiles, and interact with listings, the data goes straight to the database where it is stored. 
 
-If one desires to run the backend, run 'python manage.py runserver' in your terminal. Then navigate to the 'http://127.0.0.1:8000/' link to see the current state of the backend. You can also run the command, then input different URL's from url.py to test functionalities in Postman.
+If one desires to run the backend, cd cs370 and run 'python manage.py runserver' in your terminal. You may need to apply migrations if you've made changes to the database (python manage.py makemigrations -\> python manage.py migrate). Then navigate to the 'http://127.0.0.1:8000/' link to see the current state of the backend. You can also run the command, then input different URL's from url.py to test functionalities in Postman.
 
 ---
 
@@ -90,18 +104,6 @@ If one desires to run the backend, run 'python manage.py runserver' in your term
 - **Frontend**: React.js, TypeScript, Tailwind CSS
 - **Backend**: Python/Django  
 - **Database**: Django SQLite Database 
-
----
-
-## **Dependencies and Dependency Management**  
-
-- **Required dependencies**: For the backend app, required dependencies can be found in the requirements.txt file.
-- Creating a virtual environment to manage these dependencies is recommended. CD to the root directory of the project and follow these instructions:
-- Run python3 -m venv <myenvpath> in your terminal
-- Make sure your working directory contains your venv file and then run one of the following:
-- Mac: run source venv/bin/activate
-- Windows: run venv\Scripts\activate
-- Now, install all of the dependencies in the requirements.txt file by running pip install -r /path/to/requirements.txt
 
 ---
 
