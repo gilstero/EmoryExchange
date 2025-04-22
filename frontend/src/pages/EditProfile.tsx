@@ -69,6 +69,11 @@ export default function EditProfile() {
         
         try {
             const profileData = new FormData()
+
+            if (phone.length !== 10) {
+                alert("Phone number must be exactly 10 digits")
+                return
+            }
     
             // Only append if values are non-empty
             if (profileName) {
@@ -182,6 +187,7 @@ export default function EditProfile() {
                                 onChange={(e) => setProfileName(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Choose a username"
+                                maxLength={20}
                                 required
                             />
                         </div>
@@ -197,6 +203,7 @@ export default function EditProfile() {
                                 onChange={(e) => setRealName(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Your full name"
+                                maxLength={30}
                                 required
                             />
                         </div>
@@ -224,7 +231,11 @@ export default function EditProfile() {
                                 type="tel"
                                 id="phone"
                                 value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
+                                onChange={(e) => {
+                                    let cleaned = e.target.value.replace(/\D/g, "")
+                                    if (cleaned.length > 10) return
+                                    setPhone(cleaned)
+                                }}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Your phone number"
                                 required

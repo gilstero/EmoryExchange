@@ -45,6 +45,11 @@ function Form({route, method}: FormProps) {
                 return
             }
 
+            if (password.length <= 6) {
+                alert("Password must be more than 6 characters")
+                return
+            }
+
             try {
                 const res = await api.post(route, {
                     real_name: fullname,
@@ -119,16 +124,13 @@ function Form({route, method}: FormProps) {
                     placeholder="Password"
                 />
 
-                {loading ? (
-                    <div className="flex justify-center items-center p-2 bg-[#0c2b9c] text-white rounded-lg">Loading...</div>
-                ) : (
-                    <button
-                        className="w-full p-3 bg-[#0c2b9c] text-white font-semibold rounded-lg shadow-md cursor-pointer"
-                        type="submit"
-                    >
-                        {title}
-                    </button>
-                )}
+                <button
+                    className="w-full p-3 bg-[#0c2b9c] text-white font-semibold rounded-lg shadow-md cursor-pointer"
+                    type="submit"
+                >
+                    {title}
+                </button>
+                
             </div>
 
             <div className="mt-4 text-sm text-gray-600">
