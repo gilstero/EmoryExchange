@@ -84,7 +84,9 @@ Emory Exchange strives to:
 The frontend is a React and TypeScript application that is built out with Vite. It handles all features of the app related to accessibility. The src folder contains the majority creation of the frontend. In it exists a components folder with UI elements such as the navigation bar, footer, and individual listing cards. The pages folder holds full page views like Login, Signup, Account, and Marketplace, which show up based on the current URL. Routing is managed with React Router and stylistic design choices are handled with Tailwind CSS. Vite ensures fast development and optimized build performance.
 
 If one desires to run the frontend and see the current state of the website, cd frontend in your terminal and install the following packages: 
-'npm i --save @fortawesome/fontawesome-svg-core',
+'npm install react-router-dom',
+'npm install axios',
+'npm install --save @fortawesome/fontawesome-svg-core',
 'npm install --save @fortawesome/free-solid-svg-icons',
 'npm install --save @fortawesome/react-fontawesome'.
 Then, run 'npm install', then 'npm run dev' in your terminal. Then navigate to the 'http://localhost:5173/' link and the UI interface should appear. The backend also needs to be running for the functionality of the frontend to work. From there, the function of the app is very self-explanatory, as users are able to register, log in, log out, navigate the marketplace, message with other users, and create and delete listings. 
@@ -104,6 +106,12 @@ If one desires to run the backend, cd cs370 and run 'python manage.py runserver'
 - **Frontend**: React.js, TypeScript, Tailwind CSS
 - **Backend**: Python/Django  
 - **Database**: Django SQLite Database 
+
+---
+
+## **Further Documentation**  
+
+- More extensive documentation for both the frontend and backend can be found in the docs.txt file
 
 ---
 

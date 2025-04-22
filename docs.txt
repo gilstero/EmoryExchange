@@ -1,4 +1,29 @@
-OFFICIAL DOCUMENTATION FOR EAGLE EXCHANGE BACKEND
+OFFICIAL DOCUMENTATION FOR EAGLE EXCHANGE 
+--------------------------------------------------
+
+FRONTEND
+--------------------------------------------------
+
+frontend/assets
+This folder contains the static assets used consistently throughout the app. Currently, this is only the noimage.png fallback image
+
+frontend/components
+This folder contains all components that are used throughout the frontend app, including the different navbars, marketplace component, and form components. It also includes the ProtectedRoute component, which is used to hold pages or components that are protected by authentication.
+
+frontend/pages
+This folder contains all of the different pages of the frontend app. This includes things like the marketplace, login/register, add listing, and edit profile page. Each of these pages serves a unique purpose on the site and most have an associated route with React router.
+
+frontend/api.ts
+This file manages api calls to the backend from the frontend. Axios is imported to send these requests. The logic handles authentication and allows for different types of requests (get, post, put, delete) to be attached it.
+
+frontend/App.tsx
+This file stores the frontend app at the highest level. Each page is imported and associated with a path, rendering the appropriate components/page. Some pages are wrapped with the ProtectedRoute component if they are protected by authentication.
+
+frontend/constants.ts
+This file holds constants for the frontend, currently holding the access and refresh tokens for our JWT authentication system.
+
+
+BACKEND
 --------------------------------------------------
 
 cs370/cs370/urls.py:
@@ -32,6 +57,8 @@ Implemented models:
 - User
 - Listing
 - Message
+
+More detailed information about the models can be found in this document: https://docs.google.com/document/d/1rF7oZ3XGCh2TFR19OUKEHwcrMbZx-H3_NXfy8iERHk0/edit?usp=sharing
 
 The Ride model is still a work in progress and may not fully represent its intended functionality.
 
