@@ -487,7 +487,36 @@ class SingleListing(APIView):
             return Response({"error": "Listing not found."}, status=404)
         
         serializer = ListingSerializer(listing)
-        return Response(serializer.data, status=200)     
+        return Response(serializer.data, status=200)
+    
+    def patch(self, request, listing_id):
+        try:
+            listing = Listing.objects.get(id=listing_id)
+        except:
+            return Response({"error": "Listing not found."}, status=404)
+        
+        # Check if user is the owner of the listing
+        if listing.user != request.user:
+            return Response({"error": "You do not have permission to edit this listing."}, status=403)
+        
+        serializer = ListingSerializer(listing, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+    
+    def delete(self, request, listing_id):
+        try:
+            listing = Listing.objects.get(id=listing_id)
+        except:
+            return Response({"error": "Listing not found."}, status=404)
+        
+        # Check if user is the owner of the listing
+        if listing.user != request.user:
+            return Response({"error": "You do not have permission to delete this listing."}, status=403)
+        
+        listing.delete()
+        return Response({"message": "Listing deleted successfully."}, status=204)
 
 # basic view request for the backend control page
 def control_page(request):
